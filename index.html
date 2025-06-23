@@ -10,6 +10,24 @@
     <link rel="stylesheet" type="text/css" href="libs/anypicker.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-font.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-ios.css" />
+    <style>
+        .select2-container.loading .select2-selection__rendered::after {
+          content: "";
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          margin-left: 8px;
+          border: 2px solid #ccc;
+          border-top-color: #333;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+          vertical-align: middle;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
 
@@ -34,35 +52,20 @@
                 <div class="form-group">
                     <label for="mobileNameSelect">ASN</label>
                     <select class="form-control mobile-select2" id="mobileNameSelect" required>
-                        <option value=""></option>
-                        <option value="1">John Doe</option>
-                        <option value="2">Jane Smith</option>
-                        <option value="3">Michael Johnson</option>
-                        <option value="4">Emily Davis</option>
-                        <option value="5">Robert Wilson</option>
-                        <option value="6">Sarah Brown</option>
-                        <option value="7">David Taylor</option>
-                        <option value="8">Jennifer Martinez</option>
-                        <option value="9">Thomas Anderson</option>
-                        <option value="10">Lisa Thomas</option>
-                        <option value="11">James White</option>
-                        <option value="12">Patricia Harris</option>
-                        <option value="13">Daniel Clark</option>
-                        <option value="14">Nancy Lewis</option>
-                        <option value="15">Matthew Robinson</option>
+                        <option value="">-- Belum pilih pegawai --</option>
                     </select>
                 </div>
 
                 <!-- Regular Select 1 -->
                 <div class="form-group">
                     <label for="mobileDepartment">Unit Kerja</label>
-                    <input class="form-control" id="mobileDepartment" disabled/>
+                    <input class="form-control" id="mobileDepartment" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
                 </div>
 
                 <!-- Regular Select 2 -->
                 <div class="form-group">
                     <label for="mobilePosition">Jabatan</label>
-                    <input class="form-control" id="mobilePosition" disabled/>
+                    <input class="form-control" id="mobilePosition" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
                 </div>
 
                 <!-- Text Area 1 -->
@@ -112,5 +115,6 @@
     <script type="text/javascript" src="libs/anypicker.js"></script>
     <script src="js/banner.js"></script>
     <script src="js/kinehar_form.js"></script>
+    <script src="js/select_asn.js"></script>
 </body>
 </html>
