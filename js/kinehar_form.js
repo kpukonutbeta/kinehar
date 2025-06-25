@@ -1,11 +1,35 @@
+let selectedDate = new Date();
+
 $("#mobileDatePicker").AnyPicker(
 {
     mode: "datetime",
     dateTimeFormat: "d MMMM yyyy",
-    theme: "iOS"
+    theme: "iOS",
+    onSetOutput: function(val) {
+
+      const parts = val.split(" ");
+      const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const bulan = {
+        "Januari": 0, "Februari": 1, "Maret": 2, "April": 3, "Mei": 4, "Juni": 5,
+        "Juli": 6, "Agustus": 7, "September": 8, "Oktober": 9, "November": 10, "Desember": 11
+      };
+
+      const tanggal = parseInt(parts[0]);
+      const namaBulan = parts[1];
+      const tahun = parseInt(parts[2]);
+      const waktu = parts[3] || "00:00";
+      const [jam, menit] = waktu.split(":").map(Number);
+
+      selectedDate = new Date(tahun, bulan[namaBulan], tanggal, jam, menit);
+      const namaHari = hari[selectedDate.getDay()];
+      const output = `${namaHari}, ${tanggal} ${namaBulan} ${tahun} pukul ${waktu}`;
+      document.getElementById("labelTanggal").textContent = namaHari;
+    }
 });
 
+
 $(document).ready(function() {
+
     // Mobile-optimized select2 with search
     $(".mobile-select2").select2({
         placeholder: "Cari NIP/Nama Anda",
@@ -125,17 +149,17 @@ $(document).ready(function() {
 
         const formData = {
             date: $("#mobileDatePicker").val(),
-            name: $("#mobileNameSelect").val(),
-            nameText: $("#mobileNameSelect option:selected").text(),
-            department: $("#mobileDepartment").val(),
-            position: $("#mobilePosition").val(),
+            nip: $("#mobileNameSelect").val(),
+            // nameText: $("#mobileNameSelect option:selected").text(),
+            // department: $("#mobileDepartment").val(),
+            // position: $("#mobilePosition").val(),
             comments: $("#mobileComments").val(),
             feedback: $("#mobileFeedback").val(),
             images: mobileUploadedImages
         };
 
         // Validation
-        if (!formData.date || !formData.name || !formData.department || !formData.position) {
+        if (!formData.date || !formData.nip || !formData.comments || !formData.feedback) {
             showMobileToast("Please fill in all required fields");
             $("#submitText").show();
             $("#submitSpinner").hide();
@@ -144,14 +168,28 @@ $(document).ready(function() {
         }
 
         // Simulate AJAX submission (replace with actual AJAX call)
-        setTimeout(() => {
-            console.log("Form data:", formData);
+//        setTimeout(() => {
+//
+//        }, 1500);
 
+        // Actual AJAX would look like this:
+        fetch("https://script.google.com/macros/s/AKfycbwpFnuvLOlsh04CYUi8EXv5ULLJHDR8M5FFteRDga1KSrvKYSCi4cklyqDn0l98A-LMwQ/exec", {
+          method: "POST",
+          body: JSON.stringify(formData),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Form data:", JSON.stringify(formData));
+            console.log("Response:", data)
             // Show success message
-            showMobileToast("Submission successful!");
+            showMobileToast("Kinerja harian telah tersimpan!");
 
             // Reset form
             $("#mobileForm")[0].reset();
+            document.getElementById("labelTanggal").textContent = "Hari, Tanggal";
             $(".mobile-select2").val(null).trigger('change');
             mobileImagePreview.innerHTML = '';
             mobileUploadedImages = [];
@@ -163,9 +201,13 @@ $(document).ready(function() {
 
             // Scroll to top
             window.scrollTo(0, 0);
-        }, 1500);
-
-        // Actual AJAX would look like this:
+        })
+        .catch(err => {
+            showMobileToast("Error: " + err)
+            $("#submitText").show();
+            $("#submitSpinner").hide();
+            $(".btn-submit").prop("disabled", false);
+        });
         /*
         $.ajax({
             url: 'your-mobile-api-endpoint.php',

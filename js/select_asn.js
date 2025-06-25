@@ -11,7 +11,7 @@ $(document).ready(function () {
     selectEl.prop('disabled', true);
     selectEl.append(new Option("Memuat data...", "", true, true));
 
-    fetch("https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhnw-7TQCEoslIS-_p_pMofvyzQTv6U-yz1vFnoahn0IzRV1xPU6qKraWWAdIdH_cSCviX8hxKtEKixFJsSFZiOm_pw1ILG1t3k_69bS8Zncd3buJsNeTpETXg0dCpvDVaMLpEQsGlQdwk5AjCktE_-YNmSioI1vsjhwpBeeyv17Wx9dE0S-a7nXx9HHdsebEuD_oOwaWutOtISe2_FAOsDWII75uRW7FiPIvmY4ZkiL8DzP0v-4w6-H1iem1pV7jWeifJ4eW6cDqejGuUJW_oz9xQt108ro1Ng-h8i&lib=MYHCtADvkL33Vb7--oaPnJ6E4MQ8kKD2v")
+    fetch("https://script.google.com/macros/s/AKfycbwpFnuvLOlsh04CYUi8EXv5ULLJHDR8M5FFteRDga1KSrvKYSCi4cklyqDn0l98A-LMwQ/exec")
       .then(res => res.json())
       .then(data => {
         selectEl.empty()

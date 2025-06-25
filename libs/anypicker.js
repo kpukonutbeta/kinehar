@@ -2875,11 +2875,11 @@ $.AnyPicker = $.extend(true, $.AnyPicker, {
 
 		i18n: 
 		{
-			veryShortDays: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
-			shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-			fullDays: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-			shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-			fullMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+			veryShortDays: ["Mi", "Sn", "Sl", "Rb", "Km", "Jm", "Sb"],
+			shortDays: ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+			fullDays: ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"],
+			shortMonths: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+			fullMonths: ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"],
 			numbers: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
 			meridiem: 
 			{
