@@ -173,7 +173,7 @@ $(document).ready(function() {
 //        }, 1500);
 
         // Actual AJAX would look like this:
-        fetch("https://script.google.com/macros/s/AKfycbwpFnuvLOlsh04CYUi8EXv5ULLJHDR8M5FFteRDga1KSrvKYSCi4cklyqDn0l98A-LMwQ/exec", {
+        fetch("http://localhost:5000/proxy", {
           method: "POST",
           body: JSON.stringify(formData),
           headers: {

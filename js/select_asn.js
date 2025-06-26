@@ -11,7 +11,7 @@ $(document).ready(function () {
     selectEl.prop('disabled', true);
     selectEl.append(new Option("Memuat data...", "", true, true));
 
-    fetch("https://script.google.com/macros/s/AKfycbwpFnuvLOlsh04CYUi8EXv5ULLJHDR8M5FFteRDga1KSrvKYSCi4cklyqDn0l98A-LMwQ/exec")
+    fetch("http://localhost:5000/proxy")
       .then(res => res.json())
       .then(data => {
         selectEl.empty()
