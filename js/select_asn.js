@@ -11,7 +11,7 @@ $(document).ready(function () {
     selectEl.prop('disabled', true);
     selectEl.append(new Option("Memuat data...", "", true, true));
 
-    fetch("http://localhost:5000/proxy")
+    fetch("http://152.42.209.72:5000/proxy?action=asnlist")
       .then(res => res.json())
       .then(data => {
         selectEl.empty()

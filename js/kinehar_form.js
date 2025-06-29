@@ -150,9 +150,9 @@ $(document).ready(function() {
         const formData = {
             date: $("#mobileDatePicker").val(),
             nip: $("#mobileNameSelect").val(),
-            // nameText: $("#mobileNameSelect option:selected").text(),
-            // department: $("#mobileDepartment").val(),
-            // position: $("#mobilePosition").val(),
+            name: $("#mobileNameSelect option:selected").text(),
+            department: $("#mobileDepartment").val(),
+            position: $("#mobilePosition").val(),
             comments: $("#mobileComments").val(),
             feedback: $("#mobileFeedback").val(),
             images: mobileUploadedImages
@@ -173,7 +173,7 @@ $(document).ready(function() {
 //        }, 1500);
 
         // Actual AJAX would look like this:
-        fetch("http://localhost:5000/proxy", {
+        fetch("http://152.42.209.72:5000/proxy", {
           method: "POST",
           body: JSON.stringify(formData),
           headers: {

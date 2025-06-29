@@ -16,7 +16,7 @@ class PageBanner extends HTMLElement {
           font-family: 'Roboto', Arial, sans-serif;
         }
         .banner-logo {
-          height: 50px;
+          height: 77px;
           margin-right: 20px;
         }
         .banner-text {
