@@ -173,7 +173,7 @@ $(document).ready(function() {
 //        }, 1500);
 
         // Actual AJAX would look like this:
-        fetch("http://152.42.209.72:5000/proxy", {
+        fetch("https://proxy.arti-pos.com", {
           method: "POST",
           body: JSON.stringify(formData),
           headers: {
