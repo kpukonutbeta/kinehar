@@ -1,77 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Isian Kinerja Harian</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-font.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-ios.css" />
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-focus:focus {
+            border-color: #3b82f6;
+            ring: 2px;
+            ring-color: #3b82f6;
+        }
+    </style>
 </head>
-<body>
 
-      <!-- Logo - replace with your actual logo URL -->
-      <page-banner
-        logo="assets/logo-kpu.png"
-        org="KPU KAB. KONAWE UTARA"
-        title="Kinerja Harian">
-      </page-banner>
+<body class="pb-24">
 
-    <div class="container-fluid p-0">
-        <div class="form-container">
-            <h3 class="form-title">Formulir Isian Kinerja Harian</h3>
-            <form id="mobileForm">
-                <!-- Date Picker -->
-                <div class="form-group">
-                    <div class="input-float" id="tanggalWrapper">
-                        <span class="label-fake" id="labelTanggal">Hari, Tanggal</span>
-                        <input type="text" class="form-control" id="mobileDatePicker" required readonly style="padding-top: 42px; padding-bottom: 20px;">
+    <!-- Header Section -->
+    <div class="bg-blue-700 text-white p-6 rounded-b-[2.5rem] shadow-lg mb-6">
+        <div class="flex items-center space-x-4">
+            <div class="bg-white p-2 rounded-full">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/KPU_Logo.svg" alt="Logo KPU"
+                    class="w-10 h-10">
+            </div>
+            <div>
+                <h1 class="text-lg font-bold">KPU KAB. KONAWE UTARA</h1>
+                <p class="text-sm opacity-80">Formulir Isian Kinerja Harian</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="px-4 max-w-lg mx-auto">
+        <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
+            <form id="mobileForm" class="space-y-5">
+
+                <!-- Tanggal -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Hari / Tanggal</label>
+                    <div class="relative">
+                        <i class="fas fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <!-- Day Overlay -->
+                        <span id="dayOverlay"
+                            class="absolute left-11 top-2 text-xs text-gray-500 font-semibold pointer-events-none transition-all z-10"></span>
+                        <input id="mobileDatePicker" required readonly type="text"
+                            class="w-full pl-11 pr-4 pt-6 pb-2 h-14 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium">
                     </div>
                 </div>
 
-
-
-                <!-- Filterable Select for Names -->
-                <div class="form-group">
-                    <label for="mobileNameSelect">ASN</label>
-                    <select class="form-control mobile-select2" id="mobileNameSelect" required>
-                        <option value="">-- Belum pilih pegawai --</option>
-                    </select>
+                <!-- Nama ASN (Select) -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Pegawai</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <select
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                            id="mobileNameSelect" required>
+                            <option>-- Belum Pilih Pegawai --</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="mobilePosition">Jabatan</label>
-                    <input class="form-control" id="mobilePosition" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
+                <!-- Jabatan -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Jabatan</label>
+                    <div class="relative">
+                        <i class="fas fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="mobilePosition" placeholder="-- Pilih pegawai terlebih dahulu --"
+                            disabled
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
                 </div>
 
-                <!-- Regular Select 1 -->
-                <div class="form-group">
-                    <label for="mobileDepartment">Unit Kerja</label>
-                    <input class="form-control" id="mobileDepartment" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
+                <!-- Uraian -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Uraian Tugas</label>
+                    <textarea id="mobileComments" rows="4" placeholder="Berikan uraian di sini ..."
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
                 </div>
 
-                <!-- Text Area 1 -->
-                <div class="form-group">
-                    <label for="mobileComments">Uraian</label>
-                    <textarea class="form-control" id="mobileComments" rows="4" placeholder="Berikan uraian di sini ..."></textarea>
+                <!-- Uraian -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Output/Hasil</label>
+                    <textarea id="mobileFeedback" rows="4" placeholder="Berikan output/hasil di sini ..."
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
                 </div>
 
-                <!-- Text Area 2 -->
+                <!-- Foto Upload -->
                 <div class="form-group">
-                    <label for="mobileFeedback">Output/Hasil</label>
-                    <textarea class="form-control" id="mobileFeedback" rows="4" placeholder="Berikan deskripsi output/hasil di sini ..."></textarea>
-                </div>
-
-                <!-- Image Upload -->
-                <div class="form-group">
-                    <label>Upload Bukti Gambar</label>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Dokumentasi
+                        (Foto)</label>
                     <div class="upload-area" id="mobileUploadArea">
                         <div class="upload-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="17 8 12 3 7 8"></polyline>
                                 <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -86,21 +126,59 @@
                     </div>
                 </div>
 
+
                 <!-- Submit Button -->
                 <button type="submit" class="btn btn-submit">
                     <span id="submitText">Simpan</span>
-                    <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                        style="display: none;"></span>
                 </button>
+
+                <!-- External Link Component -->
+                <a href="https://drive.google.com/drive/folders/1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj?usp=sharing"
+                    target="_blank"
+                    class="flex items-center justify-between p-4 bg-blue-50 rounded-2xl border border-blue-100 hover:bg-blue-100 transition-all group">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-500 text-white p-2 rounded-xl group-hover:scale-110 transition-transform">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-blue-900">Sheet Pengisian</p>
+                            <p class="text-xs text-blue-700">Lihat sheet laporan pengisian</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-external-link-alt text-blue-400"></i>
+                </a>
+
             </form>
         </div>
     </div>
 
+    <!-- Bottom Navigation 
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <a href="#" class="flex flex-col items-center text-blue-600">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] mt-1 font-medium">Beranda</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-file-alt text-xl"></i>
+            <span class="text-[10px] mt-1 font-medium">Laporan</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-user-circle text-xl"></i>
+            <span class="text-[10px] mt-1 font-medium">Profil</span>
+        </a>
+    </div>
+    (Mobile Only Look) -->
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script type="text/javascript" src="libs/anypicker.js"></script>
     <script src="js/banner.js"></script>
     <script src="js/kinehar_form.js"></script>
     <script src="js/select_asn.js"></script>
+
 </body>
+
 </html>

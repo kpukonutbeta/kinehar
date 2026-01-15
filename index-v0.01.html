@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Formulir Isian Kinerja Harian</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="libs/anypicker.css" />
+    <link rel="stylesheet" type="text/css" href="libs/anypicker-font.css" />
+    <link rel="stylesheet" type="text/css" href="libs/anypicker-ios.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+
+      <!-- Logo - replace with your actual logo URL -->
+      <page-banner
+        logo="assets/logo-kpu.png"
+        org="KPU KAB. KONAWE UTARA"
+        title="Kinerja Harian">
+      </page-banner>
+
+    <div class="container-fluid p-0">
+        <div class="form-container">
+            <h3 class="form-title">Formulir Isian Kinerja Harian</h3>
+            <form id="mobileForm">
+                <!-- Date Picker -->
+                <div class="form-group">
+                    <div class="input-float" id="tanggalWrapper">
+                        <span class="label-fake" id="labelTanggal">Hari, Tanggal</span>
+                        <input type="text" class="form-control" id="mobileDatePicker" required readonly style="padding-top: 42px; padding-bottom: 20px;">
+                    </div>
+                </div>
+
+
+
+                <!-- Filterable Select for Names -->
+                <div class="form-group">
+                    <label for="mobileNameSelect">ASN</label>
+                    <select class="form-control mobile-select2" id="mobileNameSelect" required>
+                        <option value="">-- Belum pilih pegawai --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobilePosition">Jabatan</label>
+                    <input class="form-control" id="mobilePosition" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
+                </div>
+
+                <!-- Regular Select 1 -->
+                <div class="form-group">
+                    <label for="mobileDepartment">Unit Kerja</label>
+                    <input class="form-control" id="mobileDepartment" placeholder="-- Pilih pegawai terlebih dahulu --" disabled/>
+                </div>
+
+                <!-- Text Area 1 -->
+                <div class="form-group">
+                    <label for="mobileComments">Uraian</label>
+                    <textarea class="form-control" id="mobileComments" rows="4" placeholder="Berikan uraian di sini ..."></textarea>
+                </div>
+
+                <!-- Text Area 2 -->
+                <div class="form-group">
+                    <label for="mobileFeedback">Output/Hasil</label>
+                    <textarea class="form-control" id="mobileFeedback" rows="4" placeholder="Berikan deskripsi output/hasil di sini ..."></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label>Upload Bukti Gambar</label>
+                    <div class="upload-area" id="mobileUploadArea">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p>Tap untuk upload</p>
+                        <p class="text-muted" style="font-size: 0.9rem;">Maximum 2 photos (2MB each)</p>
+                        <input type="file" id="mobileImageUpload" accept="image/*" multiple style="display: none;">
+                    </div>
+                    <div class="image-preview-container" id="mobileImagePreview">
+
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-submit">
+                    <span id="submitText">Simpan</span>
+                    <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script type="text/javascript" src="libs/anypicker.js"></script>
+    <script src="js/banner.js"></script>
+    <script src="js/kinehar_form.js"></script>
+    <script src="js/select_asn.js"></script>
+</body>
+</html>

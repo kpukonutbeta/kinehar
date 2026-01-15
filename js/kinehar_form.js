@@ -1,34 +1,74 @@
 let selectedDate = new Date();
 
+const hariIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+// Helper function to update Date display with Overlay
+function updateDateDisplay(date) {
+    const d = date.getDate();
+    const m = bulanIndo[date.getMonth()];
+    const y = date.getFullYear();
+    const dayName = hariIndo[date.getDay()];
+
+    // Value: "15 Januari 2026"
+    const dateValue = `${d} ${m} ${y}`;
+    // Overlay: "Kamis"
+    const dayText = dayName;
+
+    // Set Value
+    $("#mobileDatePicker").val(dateValue);
+
+    // Set Overlay
+    $("#dayOverlay").text(dayText);
+
+    // Reset padding (if any remains from previous logic)
+    $("#mobileDatePicker").css('padding-left', '');
+}
+
 $("#mobileDatePicker").AnyPicker(
-{
-    mode: "datetime",
-    dateTimeFormat: "d MMMM yyyy",
-    theme: "iOS",
-    onSetOutput: function(val) {
+    {
+        mode: "datetime",
+        dateTimeFormat: "d MMMM yyyy",
+        theme: "iOS",
+        onSetOutput: function (val) {
+            // val comes as "d MMMM yyyy" based on format
+            const parts = val.split(" ");
+            // parts: [dd, Month, yyyy, time?] - depending on actual output.
+            // If AnyPicker appends time for datetime mode even if not in format:
+            // But let's rely on parsing standard logic or creating Date object.
 
-      const parts = val.split(" ");
-      const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-      const bulan = {
-        "Januari": 0, "Februari": 1, "Maret": 2, "April": 3, "Mei": 4, "Juni": 5,
-        "Juli": 6, "Agustus": 7, "September": 8, "Oktober": 9, "November": 10, "Desember": 11
-      };
+            // safer parsing by creating date object
+            // existing logic:
+            const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const bulan = {
+                "Januari": 0, "Februari": 1, "Maret": 2, "April": 3, "Mei": 4, "Juni": 5,
+                "Juli": 6, "Agustus": 7, "September": 8, "Oktober": 9, "November": 10, "Desember": 11
+            };
 
-      const tanggal = parseInt(parts[0]);
-      const namaBulan = parts[1];
-      const tahun = parseInt(parts[2]);
-      const waktu = parts[3] || "00:00";
-      const [jam, menit] = waktu.split(":").map(Number);
+            const tanggal = parseInt(parts[0]);
+            const namaBulan = parts[1];
+            const tahun = parseInt(parts[2]);
+            // If time is present
+            const waktu = parts[3] || "00:00";
+            const [jam, menit] = waktu.split(":").map(Number);
 
-      selectedDate = new Date(tahun, bulan[namaBulan], tanggal, jam, menit);
-      const namaHari = hari[selectedDate.getDay()];
-      const output = `${namaHari}, ${tanggal} ${namaBulan} ${tahun} pukul ${waktu}`;
-      document.getElementById("labelTanggal").textContent = namaHari;
-    }
-});
+            const d = new Date(tahun, bulan[namaBulan], tanggal, jam, menit);
+
+            updateDateDisplay(d);
+
+            // Also update label if exists
+            var labelTanggal = document.getElementById("labelTanggal");
+            if (labelTanggal) labelTanggal.textContent = hariIndo[d.getDay()];
+        }
+    });
 
 
-$(document).ready(function() {
+$(document).ready(function () {
+
+    // Set default date to today
+    // Set default date to today
+    const now = new Date();
+    updateDateDisplay(now);
 
     // Mobile-optimized select2 with search
     $(".mobile-select2").select2({
@@ -48,12 +88,12 @@ $(document).ready(function() {
     const MAX_IMAGES = 5;
     const MAX_SIZE_MB = 2;
 
-    mobileUploadArea.addEventListener('click', function(e) {
+    mobileUploadArea.addEventListener('click', function (e) {
         e.preventDefault();
         mobileImageUpload.click();
     });
 
-    mobileImageUpload.addEventListener('change', function(e) {
+    mobileImageUpload.addEventListener('change', function (e) {
         if (e.target.files.length) {
             handleMobileFiles(e.target.files);
         }
@@ -78,7 +118,7 @@ $(document).ready(function() {
             }
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const previewWrapper = document.createElement('div');
                 previewWrapper.className = 'preview-wrapper';
 
@@ -90,7 +130,7 @@ $(document).ready(function() {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
                 deleteBtn.innerHTML = '×';
-                deleteBtn.onclick = function() {
+                deleteBtn.onclick = function () {
                     previewWrapper.remove();
                     mobileUploadedImages = mobileUploadedImages.filter(img => img.name !== file.name);
                 };
@@ -139,7 +179,7 @@ $(document).ready(function() {
     }
 
     // Form submission with mobile optimizations
-    $("#mobileForm").on("submit", function(e) {
+    $("#mobileForm").on("submit", function (e) {
         e.preventDefault();
 
         // Show loading state
@@ -147,8 +187,11 @@ $(document).ready(function() {
         $("#submitSpinner").show();
         $(".btn-submit").prop("disabled", true);
 
+        // Date is now clean in the input value, no need to parse day name out.
+        const cleanDate = $("#mobileDatePicker").val();
+
         const formData = {
-            date: $("#mobileDatePicker").val(),
+            date: cleanDate,
             nip: $("#mobileNameSelect").val(),
             name: $("#mobileNameSelect option:selected").text(),
             department: $("#mobileDepartment").val(),
@@ -159,55 +202,83 @@ $(document).ready(function() {
         };
 
         // Validation
-        if (!formData.date || !formData.nip || !formData.comments || !formData.feedback) {
-            showMobileToast("Please fill in all required fields");
+        // Validation
+        let emptyField = null;
+        if (!formData.date) emptyField = $("#mobileDatePicker");
+        else if (!formData.nip) emptyField = $("#mobileNameSelect");
+        else if (!formData.comments) emptyField = $("#mobileComments");
+        else if (!formData.feedback) emptyField = $("#mobileFeedback");
+
+        if (emptyField) {
+            showMobileToast("Isikan semua field yang diperlukan");
             $("#submitText").show();
             $("#submitSpinner").hide();
             $(".btn-submit").prop("disabled", false);
+
+            if (emptyField.hasClass('mobile-select2')) {
+                emptyField.select2('open');
+            } else {
+                emptyField.focus();
+            }
             return;
         }
 
         // Simulate AJAX submission (replace with actual AJAX call)
-//        setTimeout(() => {
-//
-//        }, 1500);
+        //        setTimeout(() => {
+        //
+        //        }, 1500);
 
         // Actual AJAX would look like this:
         fetch("https://proxy.arti-pos.com", {
-          method: "POST",
-          body: JSON.stringify(formData),
-          headers: {
-            "Content-Type": "application/json"
-          }
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: {
+                "Content-Type": "application/json"
+            }
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Form data:", JSON.stringify(formData));
-            console.log("Response:", data)
-            // Show success message
-            showMobileToast("Kinerja harian telah tersimpan!");
+            .then(res => res.json())
+            .then(data => {
+                console.log("Form data:", JSON.stringify(formData));
+                console.log("Response:", data)
+                // Show success message
+                showMobileToast("Kinerja harian telah tersimpan!");
 
-            // Reset form
-            $("#mobileForm")[0].reset();
-            document.getElementById("labelTanggal").textContent = "Hari, Tanggal";
-            $(".mobile-select2").val(null).trigger('change');
-            mobileImagePreview.innerHTML = '';
-            mobileUploadedImages = [];
+                // Reset specific fields only (Textareas and Images)
+                $("#mobileComments").val('');
+                $("#mobileFeedback").val('');
 
-            // Reset button state
-            $("#submitText").show();
-            $("#submitSpinner").hide();
-            $(".btn-submit").prop("disabled", false);
+                // Do NOT reset Date, Name, Position, Department
+                // $("#mobileForm")[0].reset(); 
 
-            // Scroll to top
-            window.scrollTo(0, 0);
-        })
-        .catch(err => {
-            showMobileToast("Error: " + err)
-            $("#submitText").show();
-            $("#submitSpinner").hide();
-            $(".btn-submit").prop("disabled", false);
-        });
+                var labelTanggal = document.getElementById("labelTanggal");
+
+                // if (labelTanggal) .. this logic was for full reset, check if still needed or just keep current label
+                if (labelTanggal) labelTanggal.textContent = hariIndo[new Date().getDay()]; // Or keep current? User said "text area only reset". 
+                // Actually reset logic usually cleared label too. If we keep date, we keep label.
+
+                // Clear images
+                // $(".mobile-select2").val(null).trigger('change'); // Remove this to keep name selected
+                labelTanggal.textContent = "Hari, Tanggal";
+
+                $(".mobile-select2").val(null).trigger('change');
+                mobileImagePreview.innerHTML = '';
+                mobileImagePreview.innerHTML = '';
+                mobileUploadedImages = [];
+
+                // Reset button state
+                $("#submitText").show();
+                $("#submitSpinner").hide();
+                $(".btn-submit").prop("disabled", false);
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            })
+            .catch(err => {
+                showMobileToast("Error: " + err)
+                $("#submitText").show();
+                $("#submitSpinner").hide();
+                $(".btn-submit").prop("disabled", false);
+            });
         /*
         $.ajax({
             url: 'your-mobile-api-endpoint.php',
@@ -237,11 +308,11 @@ $(document).ready(function() {
 
     // Better touch feedback for buttons
     document.querySelectorAll('button, select, .upload-area').forEach(el => {
-        el.addEventListener('touchstart', function() {
+        el.addEventListener('touchstart', function () {
             this.style.transform = 'scale(0.98)';
         });
 
-        el.addEventListener('touchend', function() {
+        el.addEventListener('touchend', function () {
             this.style.transform = '';
         });
     });
