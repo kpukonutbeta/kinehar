@@ -54,7 +54,7 @@ label {
     border: 2px solid var(--border-color);
     border-radius: 8px;
     padding: 10px 15px;
-    font-size: 1rem;
+    font-size: 0.8rem;
     transition: all 0.2s;
 }
 
@@ -192,6 +192,7 @@ textarea.form-control {
 /* Select2 mobile optimizations */
 .select2-container--default .select2-results__option {
     padding: 12px;
+    font-size: 0.8rem;
 }
 
 .select2-results__option--highlighted {
