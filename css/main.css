@@ -54,7 +54,7 @@ label {
     border: 2px solid var(--border-color);
     border-radius: 8px;
     padding: 10px 15px;
-    font-size: 0.73rem;
+    font-size: 0.77rem;
     transition: all 0.2s;
 }
 
@@ -171,7 +171,7 @@ textarea.form-control {
     .form-control,
     .select2-container--default .select2-selection--single {
         height: 52px;
-        font-size: 0.73rem;
+        font-size: 0.77rem;
     }
 
     .btn-submit {
@@ -192,7 +192,7 @@ textarea.form-control {
 /* Select2 mobile optimizations */
 .select2-container--default .select2-results__option {
     padding: 12px;
-    font-size: 0.73rem;
+    font-size: 0.77rem;
 }
 
 .select2-results__option--highlighted {
