@@ -54,7 +54,7 @@ label {
     border: 2px solid var(--border-color);
     border-radius: 8px;
     padding: 10px 15px;
-    font-size: 0.8rem;
+    font-size: 0.73rem;
     transition: all 0.2s;
 }
 
@@ -171,12 +171,12 @@ textarea.form-control {
     .form-control,
     .select2-container--default .select2-selection--single {
         height: 52px;
-        font-size: 1.05rem;
+        font-size: 0.73rem;
     }
 
     .btn-submit {
         padding: 16px;
-        font-size: 1.15rem;
+        font-size: 0.9rem;
     }
 
     .upload-area {
@@ -192,7 +192,7 @@ textarea.form-control {
 /* Select2 mobile optimizations */
 .select2-container--default .select2-results__option {
     padding: 12px;
-    font-size: 0.8rem;
+    font-size: 0.73rem;
 }
 
 .select2-results__option--highlighted {
