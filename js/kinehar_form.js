@@ -253,12 +253,14 @@ $(document).ready(function () {
                 var labelTanggal = document.getElementById("labelTanggal");
 
                 // if (labelTanggal) .. this logic was for full reset, check if still needed or just keep current label
-                if (labelTanggal) labelTanggal.textContent = hariIndo[new Date().getDay()]; // Or keep current? User said "text area only reset". 
-                // Actually reset logic usually cleared label too. If we keep date, we keep label.
+                if (labelTanggal) {
+                    labelTanggal.textContent = hariIndo[new Date().getDay()]; // Or keep current? User said "text area only reset". 
+                    // Actually reset logic usually cleared label too. If we keep date, we keep label.
 
-                // Clear images
-                // $(".mobile-select2").val(null).trigger('change'); // Remove this to keep name selected
-                labelTanggal.textContent = "Hari, Tanggal";
+                    // Clear images
+                    // $(".mobile-select2").val(null).trigger('change'); // Remove this to keep name selected
+                    labelTanggal.textContent = "Hari, Tanggal";
+                }
 
                 $(".mobile-select2").val(null).trigger('change');
                 mobileImagePreview.innerHTML = '';
