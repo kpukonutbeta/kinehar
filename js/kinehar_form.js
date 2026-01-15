@@ -25,11 +25,21 @@ function updateDateDisplay(date) {
     $("#mobileDatePicker").css('padding-left', '');
 }
 
+// Calculate constraints
+const today = new Date();
+const minDate = new Date();
+minDate.setFullYear(today.getFullYear() - 1);
+
+const maxDate = new Date();
+maxDate.setFullYear(today.getFullYear() + 1);
+
 $("#mobileDatePicker").AnyPicker(
     {
         mode: "datetime",
         dateTimeFormat: "d MMMM yyyy",
         theme: "iOS",
+        minValue: minDate,
+        maxValue: maxDate,
         onSetOutput: function (val) {
             // val comes as "d MMMM yyyy" based on format
             const parts = val.split(" ");
