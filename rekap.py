@@ -38,7 +38,7 @@ def format_table_with_status(json_data):
         nama_pendek = (nama_saja[:13] + "..") if len(nama_saja) > 13 else nama_saja.ljust(15)
         jumlah_str = str(jumlah) if jumlah > 9 else ' {}'.format(jumlah)
         # Format baris (Status dipisah dari blok monospace agar selaras)
-        row_text = f" {jumlah_str.ljust(4)} | {nama_pendek}"
+        row_text = f" {jumlah_str.ljust(4)} | {nama_pendek.title()}"
         msg += f"{status} |{row_text}\n"
     
     msg += "---------------------------\n```\n"
