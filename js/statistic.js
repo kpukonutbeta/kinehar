@@ -33,24 +33,24 @@ $(document).ready(function () {
             }
 
             const html = `
-                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800/50 mx-2 mb-2 rounded-xl px-4 min-h-[88px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-800">
-                        <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800/50 mx-2 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
                             <!-- Avatar Placeholder based on Name Initial or just default icon -->
-                            <div class="rounded-full h-12 w-12 border-2 border-primary/10 flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-lg">
+                            <div class="shrink-0 w-10 h-10 rounded-full border-2 border-primary/10 flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-base">
                                 ${emp.name.charAt(0)}
                             </div>
-                            <div class="flex flex-col justify-center">
-                                <p class="text-slate-900 dark:text-white text-base font-bold leading-tight line-clamp-1">
+                            <div class="flex flex-col justify-center min-w-0">
+                                <p class="text-slate-900 dark:text-white text-sm font-bold leading-tight truncate">
                                     ${emp.name}
                                 </p>
-                                <p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal mt-0.5">
+                                <p class="text-slate-500 dark:text-slate-400 text-[10px] font-medium leading-normal mt-0.5">
                                     ${emp.count}/${nilaiAmbang} Laporan
                                 </p>
                             </div>
                         </div>
-                        <div class="shrink-0 flex flex-col items-end gap-2">
-                             <span class="${badgeClass} text-xs font-bold px-2 py-0.5 rounded">${badgeText}</span>
-                            <div class="w-24 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                        <div class="shrink-0 flex flex-col items-end gap-1 ml-2">
+                             <span class="${badgeClass} text-[10px] font-bold px-2 py-0.5 rounded">${badgeText}</span>
+                            <div class="w-16 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                                 <div class="h-full rounded-full ${progressColorClass}" style="width: ${percentage}%;"></div>
                             </div>
                         </div>
