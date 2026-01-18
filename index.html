@@ -124,11 +124,20 @@
 
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-submit">
-                    <span id="submitText">Simpan</span>
-                    <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                        style="display: none;"></span>
-                </button>
+
+
+                <div class="flex gap-3">
+                    <button type="button" class="btn btn-submit">
+                        <span id="submitText">Reset</span>
+                        <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status"
+                            aria-hidden="true" style="display: none;"></span>
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <span id="submitText">Simpan</span>
+                        <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status"
+                            aria-hidden="true" style="display: none;"></span>
+                    </button>
+                </div>
 
                 <!-- External Link Component -->
                 <a href="https://drive.google.com/drive/folders/1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj?usp=sharing"
@@ -150,23 +159,27 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation 
+    <!-- Bottom Navigation Mobile Only Look) -->
     <div
         class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-        <a href="#" class="flex flex-col items-center text-blue-600">
+        <a href="./index.html" class="flex flex-col items-center text-blue-600">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] mt-1 font-medium">Beranda</span>
         </a>
-        <a href="#" class="flex flex-col items-center text-gray-400">
+        <a href="./history.html" class="flex flex-col items-center text-gray-400">
             <i class="fas fa-file-alt text-xl"></i>
-            <span class="text-[10px] mt-1 font-medium">Laporan</span>
+            <span class="text-[10px] mt-1 font-medium">Histori</span>
         </a>
-        <a href="#" class="flex flex-col items-center text-gray-400">
+        <a href="./statistic.html" class="flex flex-col items-center text-gray-400">
+            <i class="fas fa-chart-bar text-xl"></i>
+            <span class="text-[10px] mt-1 font-medium">Statistik</span>
+        </a>
+        <a href="./profile.html" class="flex flex-col items-center text-gray-400">
             <i class="fas fa-user-circle text-xl"></i>
             <span class="text-[10px] mt-1 font-medium">Profil</span>
         </a>
     </div>
-    (Mobile Only Look) -->
+    (
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
