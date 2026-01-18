@@ -115,10 +115,10 @@ $(document).ready(function () {
                 const isOpen = (index === 0); // Only first item is open by default
                 const displayClass = isOpen ? 'block' : 'hidden';
                 const rotationClass = isOpen ? 'rotate-180' : '';
-                const bgClass = isOpen ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-transparent';
+                const bgClass = isOpen ? 'bg-slate-50 dark:bg-slate-700/30' : 'bg-transparent';
 
                 activitiesHtml += `
-                    <div class="activity-accordion rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-slate-100 dark:hover:border-white/5 ${bgClass} mb-0 last:mb-0">
+                    <div class="activity-accordion rounded-xl overflow-hidden transition-all duration-200 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 ${bgClass} mb-0 last:mb-0">
                          <!-- Header -->
                          <div class="accordion-header flex justify-between items-center p-2 cursor-pointer select-none"
                               data-full-date="${dateInfo.full}"
@@ -150,9 +150,9 @@ $(document).ready(function () {
 
             // Main Card Structure
             const html = `
-                <div class="flex bg-white dark:bg-[#1a2133] rounded-xl overflow-hidden shadow-sm border border-[#cfd7e7] dark:border-white/5">
+                <div class="flex bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-[#cfd7e7] dark:border-slate-700">
                     <!-- Left Column: Date & Day -->
-                    <div class="bg-primary/5 dark:bg-primary/10 flex flex-col items-center justify-start pt-4 px-2 min-w-[75px] border-r border-[#cfd7e7] dark:border-white/5 gap-1">
+                    <div class="bg-primary/5 dark:bg-slate-900/50 flex flex-col items-center justify-start pt-4 px-2 min-w-[75px] border-r border-[#cfd7e7] dark:border-slate-700 gap-1">
                         <span class="text-[10px] font-bold uppercase text-primary/70 tracking-wider">${dateInfo.dayName}</span>
                         <div class="flex flex-col items-center -mt-1">
                             <span class="text-3xl font-black text-primary leading-none">${dateInfo.date}</span>
@@ -186,12 +186,12 @@ $(document).ready(function () {
                 // Open
                 body.removeClass('hidden');
                 icon.addClass('rotate-180');
-                wrapper.addClass('bg-slate-50 dark:bg-slate-800/50');
+                wrapper.addClass('bg-slate-50 dark:bg-slate-700/30');
             } else {
                 // Close
                 body.addClass('hidden');
                 icon.removeClass('rotate-180');
-                wrapper.removeClass('bg-slate-50 dark:bg-slate-800/50');
+                wrapper.removeClass('bg-slate-50 dark:bg-slate-700/30');
             }
         });
 

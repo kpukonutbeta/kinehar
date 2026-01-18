@@ -40,12 +40,13 @@
 
     <!-- Main Content -->
     <div class="px-4 max-w-lg mx-auto">
-        <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 mb-6">
+        <div
+            class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 mb-6">
             <div class="flex items-center justify-between px-0 pt-0 pb-0">
                 <div class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Pegawai</div>
             </div>
             <div
-                class="bg-white dark:bg-[#1a2133] rounded-2xl p-4 flex items-center gap-4 border border-[#cfd7e7] dark:border-white/10 shadow-sm mb-4">
+                class="bg-white dark:bg-slate-800 rounded-2xl p-4 flex items-center gap-4 border border-[#cfd7e7] dark:border-slate-700 shadow-sm mb-4">
                 <div class="size-14 rounded-full border-2 border-primary/20 shrink-0 flex items-center justify-center bg-blue-500 text-white overflow-hidden"
                     id="avatarContainer">
                     <span class="text-xl font-bold" id="avatarText">--</span>
@@ -60,7 +61,7 @@
             <!-- External Link Component -->
             <a href="https://drive.google.com/drive/folders/1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj?usp=sharing"
                 target="_blank"
-                class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group">
+                class="flex items-center justify-between p-4 bg-blue-50 dark:bg-slate-800 rounded-2xl border border-blue-100 dark:border-slate-700 hover:bg-blue-100 dark:hover:bg-slate-700/80 transition-all group">
                 <div class="flex items-center space-x-3">
                     <div class="bg-blue-500 text-white p-2 rounded-xl group-hover:scale-110 transition-transform">
                         <i class="fas fa-book"></i>
@@ -78,7 +79,7 @@
             </div>
             <div class="relative mb-6">
                 <select id="periodeSelect"
-                    class="form-input flex w-full appearance-none rounded-xl text-[#0d121b] dark:text-white border border-[#cfd7e7] dark:border-white/10 bg-white dark:bg-[#1a2133] h-12 px-4 pr-10 text-sm leading-normal focus:ring-2 focus:ring-primary focus:border-primary">
+                    class="form-input flex w-full appearance-none rounded-xl text-[#0d121b] dark:text-white border border-[#cfd7e7] dark:border-slate-700 bg-white dark:bg-slate-800 h-12 px-4 pr-10 text-sm leading-normal focus:ring-2 focus:ring-primary focus:border-primary">
                     <option value="januari-2026">Januari 2026</option>
                     <option selected="" value="desember-2025">Desember 2025</option>
                     <option value="november-2025">November 2025</option>
@@ -178,10 +179,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
+        /* Removed custom glass-card to use Tailwind utility classes */
 
         .input-focus:focus {
             border-color: #3b82f6;
