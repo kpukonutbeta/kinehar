@@ -4,9 +4,31 @@ $(document).ready(function () {
   const unitKerjaInput = $('#mobileDepartment');
   const selectEl = $('#mobileNameSelect');
 
-  // Initialize Select2
-  selectEl.select2();
-  const container = selectEl.data('select2').$container;
+  // --- HELPER FUNCTIONS ---
+  function getInitials(name) {
+    if (!name) return '--';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  function getAvatarColor(name) {
+    if (!name) return '#3b82f6';
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return '#' + '00000'.substring(0, 6 - c.length) + c;
+  }
+
+  function updateAvatar(nama) {
+    const initials = getInitials(nama);
+    const color = getAvatarColor(nama);
+
+    $('#avatarText').text(initials);
+    $('#avatarContainer').css('background-color', color);
+  }
 
   // Function to calculate and update birthday countdown
   function updateBirthdayCountdown(nip) {
@@ -20,28 +42,22 @@ $(document).ready(function () {
     const month = nip.substring(4, 6);
     const day = nip.substring(6, 8);
 
-    // Bulan di JS 0-indexed
     const birthDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Set tahun next birthday ke tahun ini dulu
     let nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
 
-    // Jika hari ini sudah melewati ultah tahun ini (atau sama dengan hari ini tapi kita ingin hitung 0/selamat?), 
-    // Jika today > nextBirthday, berarti sudah lewat -> tahun depan.
     if (today > nextBirthday) {
       nextBirthday.setFullYear(today.getFullYear() + 1);
     }
 
-    // Hitung selisih hari
     const diffTime = Math.abs(nextBirthday - today);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const monthName = namaBulan[birthDate.getMonth()];
 
-    // Update UI
     if (diffDays === 0) {
       $('#countdownValue').text('Hari Ini');
       $('#countdownText').text(`Selamat Ulang Tahun!`);
@@ -50,6 +66,10 @@ $(document).ready(function () {
       $('#countdownText').text(`Hari Menuju ${parseInt(day)} ${monthName}`);
     }
   }
+
+  // Initialize Select2
+  selectEl.select2();
+  const container = selectEl.data('select2').$container;
 
   // --- LOCAL STORAGE LOGIC START ---
   const STORAGE_KEY = 'saved_asn_selection';
@@ -64,20 +84,19 @@ $(document).ready(function () {
     console.error("Error reading from localStorage", e);
   }
 
-  // Jika ada data tersimpan, restore state UI segera
+  // Restore state UI immediately if data exists
   if (savedSelection && savedSelection.nip) {
-    // Tambahkan option sementara agar Select2 bisa menampilkan nilai
     const tempOption = new Option(
-      `${savedSelection.nip} - ${savedSelection.nama}`, // Text
-      savedSelection.nip, // Value
-      true, // DefaultSelected
-      true  // Selected
+      `${savedSelection.nip} - ${savedSelection.nama}`,
+      savedSelection.nip,
+      true,
+      true
     );
     selectEl.append(tempOption).trigger('change');
 
-    // Isi input field
     if (savedSelection.nama) {
       $('#textName').text(savedSelection.nama);
+      updateAvatar(savedSelection.nama); // Update Avatar here
     }
 
     if (savedSelection.nip) {
@@ -92,14 +111,11 @@ $(document).ready(function () {
       $('#textDepartment').text(savedSelection.unitKerja);
     }
 
-    // Update Countdown
     updateBirthdayCountdown(savedSelection.nip);
 
-    // Pastikan UI tidak blocked
     container.removeClass('loading');
     selectEl.prop('disabled', false);
   } else {
-    // Jika tidak ada data tersimpan, tampilkan loading state standar
     container.addClass('loading');
     selectEl.prop('disabled', true);
     selectEl.append(new Option("Memuat data...", "", true, true));
@@ -109,35 +125,29 @@ $(document).ready(function () {
   fetch("https://proxy.arti-pos.com?action=asnlist")
     .then(res => res.json())
     .then(data => {
-      // Simpan current value (bisa jadi dari LocalStorage atau user sudah pilih duluan jika fetch lambat)
       const currentVal = selectEl.val();
 
       selectEl.empty();
       selectEl.append(new Option("-- Belum pilih pegawai --", "", true, true));
 
       data.forEach(item => {
-        // Gunakan NIP sebagai value
         const option = new Option(`${item['NIP']} - ${item['Nama Lengkap']}`, item.NIP, false, false);
         selectEl.append(option);
 
-        // update map pegawai
         pegawaiMap[item.NIP] = {
-          nama: item['Nama Lengkap'], // Simpan nama untuk keperluan save
+          nama: item['Nama Lengkap'],
           jabatan: item.Jabatan,
           unitKerja: item["Unit Kerja"]
         };
       });
 
-      // Restore selection jika match dengan data baru
       if (currentVal && pegawaiMap[currentVal]) {
         selectEl.val(currentVal).trigger('change');
 
-        // Opsional: perbarui field text dengan data terbaru dari server (data fresh)
         const freshData = pegawaiMap[currentVal];
         jabatanInput.val(freshData.jabatan).attr('placeholder', '');
         unitKerjaInput.val(freshData.unitKerja).attr('placeholder', '');
       } else {
-        // Jika value lama tidak valid di data baru, atau user belum pilih apa2
         selectEl.val("").trigger('change');
       }
 
@@ -145,7 +155,6 @@ $(document).ready(function () {
       selectEl.prop('disabled', false);
 
       // --- EVENT HANDLER ---
-      // Fix: Jangan gunakan .off('change') karena akan menghapus listener internal Select2!
       selectEl.on('change', function () {
         const selectedNIP = $(this).val();
         const pegawai = pegawaiMap[selectedNIP];
@@ -157,10 +166,11 @@ $(document).ready(function () {
           $('#textPosition').text(pegawai.jabatan);
           $('#textDepartment').text(pegawai.unitKerja);
 
-          // Update Countdown
+          // Update Avatar & Countdown
+          updateAvatar(pegawai.nama);
           updateBirthdayCountdown(selectedNIP);
 
-          // 2. Simpan ke LocalStorage
+          // 2. Save to LocalStorage
           const dataToSave = {
             nip: selectedNIP,
             nama: pegawai.nama,
@@ -176,18 +186,15 @@ $(document).ready(function () {
           $('#textPosition').text('---');
           $('#textDepartment').text('---');
 
+          updateAvatar('');
           updateBirthdayCountdown(null);
 
-          // Hapus dari LocalStorage jika user pilih "-- Belum pilih --"
           localStorage.removeItem(STORAGE_KEY);
         }
       });
     })
     .catch(err => {
       console.error("Gagal memuat data:", err);
-      // Jika fetch error, setidaknya matikan loading agar user tau (atau biarkan jika mau fail silent)
       container.removeClass('loading');
-      // selectEl.prop('disabled', false); // Optional logic
     });
 });
-
