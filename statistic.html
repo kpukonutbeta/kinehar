@@ -36,23 +36,20 @@
     <!-- Main Content -->
     <div class="px-4 max-w-lg mx-auto">
         <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
-
-
-
-
             <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
-
                 <div class="flex justify-between items-start">
                     <div>
                         <p
                             class="text-slate-500 dark:text-slate-400 text-sm font-medium leading-normal uppercase tracking-wider">
                             Total Laporan Bulan Ini</p>
-                        <p
+                        <p id="totalLaporanBulanIni"
                             class="text-slate-900 dark:text-white tracking-tight text-3xl font-extrabold leading-tight mt-1">
-                            1,240</p>
+                            ---</p>
                     </div>
                     <div class="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-lg">
-                        <p class="text-green-600 dark:text-green-400 text-xs font-bold">+12.5%</p>
+                        <p class="text-green-600 dark:text-green-400 text-xs font-bold" id="persentaseLaporanBulanIni">
+                            ---
+                        </p>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center gap-2">
@@ -70,7 +67,8 @@
                             style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB21V3n3nkCu-EIY-Z6fM0OvV-MpyjcT42LDOvDkTmx6IZ4Y7-onXNwvyYE6WgZfUEttwzlrFCURhTTlmx-IHsiBxPLXxrAgqw4lvw5XhtmEKU8U_GihqKhkimbP4MrMMvJlEWe3y10AfUu6uq3Jf9QnrkInFY_q5GvUpQ-9OYvXr0sIUVvceDRbTtYBl6iydDiVsc_tYttPQeDM-tSO8gWJ3C2f-pBGDPYhpaDD5DZvL5R2FKkqFVKP-p2ynrWqseFQl1YyvDy00w");'>
                         </div>
                     </div>
-                    <p class="text-slate-400 text-xs italic">Aktif dilaporkan oleh 28 pegawai</p>
+                    <p class="text-slate-400 text-xs italic">Aktif dilaporkan oleh <span id="totalPegawai">---</span>
+                        pegawai</p>
                 </div>
 
             </div>
@@ -82,7 +80,7 @@
                             data-icon="MagnifyingGlass">
                             <span class="material-symbols-outlined text-xl">search</span>
                         </div>
-                        <input
+                        <input id="searchEmployee"
                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-white dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-400 px-4 pl-2 text-base font-normal leading-normal"
                             placeholder="Cari nama pegawai..." value="" />
                     </div>
@@ -96,57 +94,9 @@
                 <button class="text-primary text-sm font-semibold">Lihat Semua</button>
             </div>
             <!-- List Items (Employee Compliance) -->
-            <div class="flex flex-col gap-1 px-2">
-                <!-- Employee 1 -->
-                <!-- Employee 2 -->
-                <div
-                    class="flex items-center gap-4 bg-white dark:bg-slate-800/50 mx-2 mb-2 rounded-xl px-4 min-h-[88px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-800">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border-2 border-primary/10"
-                            data-alt="Portrait of Siti Aminah"
-                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9NE8t95f5TiSOj9KfNp4MA94s3pZztdmITzP5cCbPronv6aDoW5ulGEGfXJe37f8T-ybkkfChKh15ZZSq5a0Cl0gcFSC6amlW7hYB-Z005-CGKs5-wbE0KNH7UgTPUDTnFvUcsCT62zzQpjS-3BPjloEDH21eteAoqqBXKByDeOzAbaf9dUtwnU1tEQTpymEjx7DgPB9TKLyUDetcKs_3smi05H3PKZc5UoaOQ4wpy-VaVaXs25XinbLl7GCvPp3xY5lk9ktt-dY");'>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <p class="text-slate-900 dark:text-white text-base font-bold leading-tight line-clamp-1">
-                                Siti
-                                Aminah</p>
-                            <p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal mt-0.5">
-                                20/20
-                                Laporan</p>
-                        </div>
-                    </div>
-                    <div class="shrink-0 flex flex-col items-end gap-2">
-                        <span class="text-green-600 text-xs font-bold bg-green-100 px-2 py-0.5 rounded">Lengkap</span>
-                        <div class="w-24 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div class="h-full rounded-full bg-green-500" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Employee 3 -->
-                <div
-                    class="flex items-center gap-4 bg-white dark:bg-slate-800/50 mx-2 mb-2 rounded-xl px-4 min-h-[88px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-800">
-                    <div class="flex items-center gap-4">
-                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 border-2 border-primary/10"
-                            data-alt="Portrait of Budi Santoso"
-                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC8Bm3EBedB_q6ZBWY6WlSLw2elVorvlocyoE8510WdRA6s0dnVO6hWZpYusiS9_ZtjyhetU_81ZLbKTrzN_I1nzIujSvhlIL_5D3G7KIBx5iFsChPdEyCw5mDvR_BJgicw_Me1QqJPUkVtEYOF1QAoP06N-QpHt2bypEU3XOdPDXyippxR3FjS9_gt147pF5fJIIVKKFrIYY9_HeU1FR1qtmIuMpz_PQSGSinLsoRTeLKuRxGgvxIblt6G1KgbGDfo4Z5uxabzURI");'>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <p class="text-slate-900 dark:text-white text-base font-bold leading-tight line-clamp-1">
-                                Budi
-                                Santoso</p>
-                            <p class="text-slate-500 dark:text-slate-400 text-xs font-medium leading-normal mt-0.5">
-                                12/20
-                                Laporan</p>
-                        </div>
-                    </div>
-                    <div class="shrink-0 flex flex-col items-end gap-2">
-                        <span class="text-orange-500 text-xs font-bold bg-orange-100 px-2 py-0.5 rounded">60%</span>
-                        <div class="w-24 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                            <div class="h-full rounded-full bg-orange-500" style="width: 60%;"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Employee 4 -->
+            <!-- List Items (Employee Compliance) -->
+            <div class="flex flex-col gap-1 px-2" id="employeeList">
+                <div class="text-center text-gray-500 py-4">Memuat data...</div>
             </div>
 
 
@@ -199,6 +149,8 @@
             padding: 1.1rem;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/statistic.js"></script>
 
 </body>
 
