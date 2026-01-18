@@ -140,7 +140,7 @@ $(document).ready(function () {
                          
                          <!-- Content (Accordion Body) -->
                          <div class="accordion-body px-3 pb-3 pt-0 ${displayClass}">
-                             <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed text-justify">
+                             <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed text-justify line-clamp-5">
                                  ${act.comments}
                              </p>
                          </div>
