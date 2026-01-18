@@ -43,7 +43,13 @@
     <div class="px-4 max-w-lg mx-auto">
         <div
             class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 mb-6">
-            <div class="bg-white dark:bg-slate-800 rounded-[28px] p-6 flex flex-col items-center text-center mb-4">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-[28px] p-6 flex flex-col items-center text-center mb-4 relative group">
+                <button onclick="window.location.reload()"
+                    class="absolute top-4 right-4 p-2 rounded-full text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-blue-500 dark:hover:text-blue-400 transition-all"
+                    title="Refresh Halaman">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
                 <div class="relative mb-4">
                     <div class="w-24 h-24 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden flex items-center justify-center bg-blue-500 text-white"
                         id="avatarContainer">
@@ -168,6 +174,95 @@
 
         .p-6 {
             padding: 1.1rem;
+        }
+
+        /* Select2 Global Styles (Structure + Light Mode Default) */
+        .select2-container--default .select2-selection--single {
+            background-color: #f9fafb;
+            /* gray-50 */
+            border-color: #e5e7eb;
+            /* gray-200 */
+            color: #111827;
+            /* gray-900 */
+            height: 50px;
+            /* Match existing input height approx */
+            display: flex;
+            align-items: center;
+            border-radius: 1rem;
+            /* rounded-2xl */
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #111827;
+            /* gray-900 */
+            padding-left: 44px;
+            /* Space for icon */
+            line-height: normal;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 48px;
+            top: 1px;
+            right: 10px;
+        }
+
+        .select2-dropdown {
+            background-color: #ffffff;
+            border-color: #e5e7eb;
+            /* gray-200 */
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border-radius: 0.5rem;
+            border-color: #e5e7eb;
+            padding: 8px;
+        }
+
+        /* Select2 Dark Mode Overrides (Colors Only) */
+        @media (prefers-color-scheme: dark) {
+            .select2-container--default .select2-selection--single {
+                background-color: #1e293b !important;
+                /* slate-800 */
+                border-color: #334155 !important;
+                /* slate-700 */
+                color: #ffffff !important;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: #ffffff !important;
+            }
+
+            .select2-dropdown {
+                background-color: #1e293b !important;
+                /* slate-800 */
+                border-color: #334155 !important;
+                /* slate-700 */
+                color: #ffffff !important;
+            }
+
+            .select2-container--default .select2-search--dropdown .select2-search__field {
+                background-color: #0f172a !important;
+                /* slate-900 */
+                border-color: #334155 !important;
+                color: #ffffff !important;
+            }
+
+            .select2-results__option {
+                color: #ffffff !important;
+            }
+
+            .select2-container--default .select2-results__option--selected {
+                background-color: #334155 !important;
+            }
+
+            .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+                background-color: #3b82f6 !important;
+                /* blue-500 */
+                color: #ffffff !important;
+            }
         }
     </style>
 
