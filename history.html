@@ -76,7 +76,7 @@
                 <div class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Periode Laporan</div>
             </div>
             <div class="relative mb-6">
-                <select
+                <select id="periodeSelect"
                     class="form-input flex w-full appearance-none rounded-xl text-[#0d121b] dark:text-white border border-[#cfd7e7] dark:border-white/10 bg-white dark:bg-[#1a2133] h-12 px-4 pr-10 text-sm leading-normal focus:ring-2 focus:ring-primary focus:border-primary">
                     <option value="januari-2026">Januari 2026</option>
                     <option selected="" value="desember-2025">Desember 2025</option>
@@ -98,53 +98,11 @@
 
             <div class="flex items-center justify-between px-0 pt-0 pb-0">
                 <div class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Daftar Aktivitas</div>
-                <span class="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full">22 Hari Kerja</span>
+                <span class="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full"><span
+                        id="totalHariKerja">---</span> Hari Kerja</span>
             </div>
-            <div class="flex flex-col gap-3 px-0 pb-32">
-                <div
-                    class="flex bg-white dark:bg-[#1a2133] rounded-xl overflow-hidden shadow-sm border border-[#cfd7e7] dark:border-white/5">
-                    <div
-                        class="bg-primary/5 dark:bg-primary/10 flex flex-col items-center justify-center min-w-[70px] border-r border-[#cfd7e7] dark:border-white/5">
-                        <span class="text-2xl font-black text-primary">30</span>
-                        <span class="text-[10px] font-bold uppercase text-primary/70">Sep</span>
-                    </div>
-                    <div class="p-3 flex-1 flex flex-col justify-between min-w-0">
-                        <div>
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs text-[#4c669a] dark:text-gray-400">Sabtu, 08:00 -
-                                    17:00</span>
-                                <span class="material-symbols-outlined text-green-500 text-lg"
-                                    style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                            </div>
-                            <p class="text-sm font-medium text-[#0d121b] dark:text-gray-200 line-clamp-2">
-                                Pemeliharaan rutin server database dan backup mingguan data transaksi ke storage
-                                cloud...
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="flex bg-white dark:bg-[#1a2133] rounded-xl overflow-hidden shadow-sm border border-[#cfd7e7] dark:border-white/5">
-                    <div
-                        class="bg-primary/5 dark:bg-primary/10 flex flex-col items-center justify-center min-w-[70px] border-r border-[#cfd7e7] dark:border-white/5">
-                        <span class="text-2xl font-black text-primary">29</span>
-                        <span class="text-[10px] font-bold uppercase text-primary/70">Sep</span>
-                    </div>
-                    <div class="p-3 flex-1 flex flex-col justify-between min-w-0">
-                        <div>
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="text-xs text-[#4c669a] dark:text-gray-400">Jumat, 08:30 -
-                                    17:30</span>
-                                <span class="material-symbols-outlined text-green-500 text-lg"
-                                    style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                            </div>
-                            <p class="text-sm font-medium text-[#0d121b] dark:text-gray-200 line-clamp-2">
-                                Troubleshooting koneksi jaringan di lantai 3 departemen keuangan dan penggantian kabel
-                                LAN.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <div id="historyList" class="flex flex-col gap-3 px-0 pb-32">
+                <div class="text-center text-gray-500 py-4">Memuat data...</div>
             </div>
         </div>
     </div>
@@ -170,6 +128,47 @@
         </a>
     </div>
 
+    <!-- Detail Modal -->
+    <div id="detailModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="bg-white dark:bg-[#1a2133] w-full max-w-md mx-4 rounded-3xl p-6 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-white/10 pb-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Detail Aktivitas</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-gray-400 uppercase">Hari / Tanggal</label>
+                    <p id="modalDate" class="text-sm font-medium text-slate-800 dark:text-white mt-1">---</p>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-gray-400 uppercase">Uraian Kegiatan</label>
+                    <div
+                        class="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3 mt-1 border border-gray-100 dark:border-white/5">
+                        <p id="modalComments"
+                            class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">---
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-semibold text-gray-400 uppercase">Output / Hasil</label>
+                    <div
+                        class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-3 mt-1 border border-blue-100 dark:border-blue-500/20">
+                        <p id="modalFeedback"
+                            class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">---
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
@@ -191,9 +190,22 @@
         .p-6 {
             padding: 1.1rem;
         }
+
+        /* Modal Transition Helper Classes */
+        .modal-active {
+            display: flex !important;
+        }
+
+        .modal-entering {
+            opacity: 1 !important;
+        }
+
+        .modal-entering>div {
+            transform: scale(100%) !important;
+        }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/badge_pegawai.js?v=150126-3"></script>
+    <script src="js/history.js?v=1"></script>
 </body>
 
 </html>
