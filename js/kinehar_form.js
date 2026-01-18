@@ -1,3 +1,37 @@
+// --- LOCAL STORAGE LOGIC START ---
+const STORAGE_KEY = 'saved_asn_selection';
+let savedSelection = null;
+
+try {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+        savedSelection = JSON.parse(storedData);
+    }
+} catch (e) {
+    console.error("Error reading from localStorage", e);
+}
+
+// Jika ada data tersimpan, restore state UI segera
+if (savedSelection && savedSelection.nip) {
+    // Isi text badge pegawai
+    if (savedSelection.nama) {
+        $('#textName').text(savedSelection.nama);
+    }
+
+    if (savedSelection.nip) {
+        $('#textNip').text(savedSelection.nip);
+    }
+
+    if (savedSelection.jabatan) {
+        $('#textPosition').text(savedSelection.jabatan);
+    }
+
+    if (savedSelection.unitKerja) {
+        $('#textDepartment').text(savedSelection.unitKerja);
+    }
+}
+
+
 let selectedDate = new Date();
 
 const hariIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -80,6 +114,7 @@ $(document).ready(function () {
     const now = new Date();
     updateDateDisplay(now);
 
+    /*
     // Mobile-optimized select2 with search
     $(".mobile-select2").select2({
         placeholder: "Cari NIP/Nama Anda",
@@ -89,6 +124,7 @@ $(document).ready(function () {
         dropdownParent: $('.form-container'),
         minimumResultsForSearch: 3
     });
+    */
 
     // Image upload handling for mobile
     const mobileUploadArea = document.getElementById('mobileUploadArea');
@@ -200,22 +236,36 @@ $(document).ready(function () {
         // Date is now clean in the input value, no need to parse day name out.
         const cleanDate = $("#mobileDatePicker").val();
 
+        try {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (storedData) {
+                savedSelection = JSON.parse(storedData);
+            }
+        } catch (e) {
+            console.error("Error reading from localStorage", e);
+        }
+
+        if (!savedSelection) {
+            showMobileToast("Silahkan pilih ASN terlebih dahulu");
+            // redirect to select asn page
+            window.location.href = "./profile.html";
+            return;
+        }
+
         const formData = {
             date: cleanDate,
-            nip: $("#mobileNameSelect").val(),
-            name: $("#mobileNameSelect option:selected").text(),
-            department: $("#mobileDepartment").val(),
-            position: $("#mobilePosition").val(),
+            nip: savedSelection.nip,
+            name: savedSelection.nama,
+            department: savedSelection.unitKerja,
+            position: savedSelection.jabatan,
             comments: $("#mobileComments").val(),
             feedback: $("#mobileFeedback").val(),
             images: mobileUploadedImages
         };
 
         // Validation
-        // Validation
         let emptyField = null;
         if (!formData.date) emptyField = $("#mobileDatePicker");
-        else if (!formData.nip) emptyField = $("#mobileNameSelect");
         else if (!formData.comments) emptyField = $("#mobileComments");
         else if (!formData.feedback) emptyField = $("#mobileFeedback");
 
@@ -232,11 +282,6 @@ $(document).ready(function () {
             }
             return;
         }
-
-        // Simulate AJAX submission (replace with actual AJAX call)
-        //        setTimeout(() => {
-        //
-        //        }, 1500);
 
         // Actual AJAX would look like this:
         fetch("https://proxy.arti-pos.com", {

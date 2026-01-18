@@ -8,6 +8,49 @@ $(document).ready(function () {
   selectEl.select2();
   const container = selectEl.data('select2').$container;
 
+  // Function to calculate and update birthday countdown
+  function updateBirthdayCountdown(nip) {
+    if (!nip || nip.length < 8) {
+      $('#countdownValue').text('--');
+      $('#countdownText').text('Hari Menuju --');
+      return;
+    }
+
+    const year = nip.substring(0, 4);
+    const month = nip.substring(4, 6);
+    const day = nip.substring(6, 8);
+
+    // Bulan di JS 0-indexed
+    const birthDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Set tahun next birthday ke tahun ini dulu
+    let nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+
+    // Jika hari ini sudah melewati ultah tahun ini (atau sama dengan hari ini tapi kita ingin hitung 0/selamat?), 
+    // Jika today > nextBirthday, berarti sudah lewat -> tahun depan.
+    if (today > nextBirthday) {
+      nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+
+    // Hitung selisih hari
+    const diffTime = Math.abs(nextBirthday - today);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const monthName = namaBulan[birthDate.getMonth()];
+
+    // Update UI
+    if (diffDays === 0) {
+      $('#countdownValue').text('Hari Ini');
+      $('#countdownText').text(`Selamat Ulang Tahun!`);
+    } else {
+      $('#countdownValue').text(diffDays);
+      $('#countdownText').text(`Hari Menuju ${parseInt(day)} ${monthName}`);
+    }
+  }
+
   // --- LOCAL STORAGE LOGIC START ---
   const STORAGE_KEY = 'saved_asn_selection';
   let savedSelection = null;
@@ -33,8 +76,24 @@ $(document).ready(function () {
     selectEl.append(tempOption).trigger('change');
 
     // Isi input field
-    jabatanInput.val(savedSelection.jabatan).attr('placeholder', '');
-    unitKerjaInput.val(savedSelection.unitKerja).attr('placeholder', '');
+    if (savedSelection.nama) {
+      $('#textName').text(savedSelection.nama);
+    }
+
+    if (savedSelection.nip) {
+      $('#textNip').text(savedSelection.nip);
+    }
+
+    if (savedSelection.jabatan) {
+      $('#textPosition').text(savedSelection.jabatan);
+    }
+
+    if (savedSelection.unitKerja) {
+      $('#textDepartment').text(savedSelection.unitKerja);
+    }
+
+    // Update Countdown
+    updateBirthdayCountdown(savedSelection.nip);
 
     // Pastikan UI tidak blocked
     container.removeClass('loading');
@@ -93,13 +152,13 @@ $(document).ready(function () {
 
         if (pegawai) {
           // 1. Update UI
-          jabatanInput
-            .val(pegawai.jabatan)
-            .attr('placeholder', '');
+          $('#textName').text(pegawai.nama);
+          $('#textNip').text(selectedNIP);
+          $('#textPosition').text(pegawai.jabatan);
+          $('#textDepartment').text(pegawai.unitKerja);
 
-          unitKerjaInput
-            .val(pegawai.unitKerja)
-            .attr('placeholder', '');
+          // Update Countdown
+          updateBirthdayCountdown(selectedNIP);
 
           // 2. Simpan ke LocalStorage
           const dataToSave = {
@@ -112,8 +171,12 @@ $(document).ready(function () {
 
         } else {
           // Reset UI
-          jabatanInput.val('').attr('placeholder', '-- Pilih pegawai terlebih dahulu --');
-          unitKerjaInput.val('').attr('placeholder', '-- Pilih pegawai terlebih dahulu --');
+          $('#textName').text('---');
+          $('#textNip').text('---');
+          $('#textPosition').text('---');
+          $('#textDepartment').text('---');
+
+          updateBirthdayCountdown(null);
 
           // Hapus dari LocalStorage jika user pilih "-- Belum pilih --"
           localStorage.removeItem(STORAGE_KEY);
