@@ -91,8 +91,9 @@ $(document).ready(function () {
         listContainer.empty().removeClass('pb-32');
 
         // Unique Days
-        const uniqueDates = new Set(items.map(item => item.date));
-        totalHariEl.text(uniqueDates.size);
+        // const uniqueDates = new Set(items.map(item => item.date));
+        // totalHariEl.text(uniqueDates.size);
+        // STATS CALCULATION REMOVED FROM HERE
 
         if (items.length === 0) {
             listContainer.append('<div class="text-center text-gray-500 py-4">Tidak ada data untuk periode ini.</div>');
@@ -209,6 +210,39 @@ $(document).ready(function () {
     }
 
     // 5. Caching & Fetch Logic
+    let allItems = [];
+    let visibleCount = 0;
+    const ITEMS_PER_PAGE = 5;
+    const loadMoreContainer = $('#loadMoreContainer');
+    const btnLoadMore = $('#btnLoadMore');
+
+    function updateStats(items) {
+        const uniqueDates = new Set(items.map(item => item.date));
+        totalHariEl.text(uniqueDates.size);
+    }
+
+    function renderNextBatch() {
+        const nextLimit = visibleCount + ITEMS_PER_PAGE;
+        const batch = allItems.slice(0, nextLimit);
+
+        // We render the whole batch (0 to N) to ensure grouping is correct.
+        // renderGroupedList clears the container, so this is fine.
+        // Optimized approach would be appending, but grouping makes it hard.
+        renderGroupedList(batch);
+
+        visibleCount = nextLimit;
+
+        if (visibleCount >= allItems.length) {
+            loadMoreContainer.addClass('hidden');
+        } else {
+            loadMoreContainer.removeClass('hidden');
+        }
+    }
+
+    btnLoadMore.on('click', function () {
+        renderNextBatch();
+    });
+
     function loadData() {
         const selectedMonth = periodeSelect.val();
 
@@ -225,9 +259,14 @@ $(document).ready(function () {
         } catch (e) { console.error("Cache error", e); }
 
         if (cached) {
-            renderGroupedList(cached);
+            allItems = cached;
+            updateStats(allItems);
+            visibleCount = 0;
+            renderNextBatch();
         } else {
             listContainer.html('<div class="text-center text-gray-500 py-4">Memuat data...</div>');
+            loadMoreContainer.addClass('hidden');
+            totalHariEl.text('...');
         }
 
         // Fetch fresh data
@@ -238,7 +277,10 @@ $(document).ready(function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success && Array.isArray(data.data)) {
-                    renderGroupedList(data.data);
+                    allItems = data.data;
+                    updateStats(allItems);
+                    visibleCount = 0;
+                    renderNextBatch();
 
                     const toSave = {
                         nip: currentNip,
@@ -250,11 +292,13 @@ $(document).ready(function () {
                 } else {
                     listContainer.html('<div class="text-center text-gray-500 py-4">Tidak ada data untuk periode ini.</div>');
                     totalHariEl.text('0');
+                    loadMoreContainer.addClass('hidden');
                 }
             })
             .catch(err => {
                 if (!cached) {
                     listContainer.html('<div class="text-center text-red-500 py-4">Gagal memuat data.</div>');
+                    loadMoreContainer.addClass('hidden');
                 }
                 console.error("Fetch error", err);
             });
