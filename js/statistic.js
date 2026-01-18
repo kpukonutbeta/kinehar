@@ -1,5 +1,6 @@
 $(document).ready(function () {
     const endpoint = "https://proxy.arti-pos.com/?action=kinerja_count";
+    const cacheKey = "statistic_data_cache";
     const container = $("#employeeList");
     const totalLaporanEl = $("#totalLaporanBulanIni");
     const totalPegawaiEl = $("#totalPegawai");
@@ -60,50 +61,108 @@ $(document).ready(function () {
         });
     }
 
+    function processAndRenderData(data) {
+        if (data.success && data.data) {
+            const items = data.data.item;
+            nilaiAmbang = data.data.nilai_ambang || 10;
+            let totalReports = 0;
+            let totalEmployees = 0;
+            allEmployees = [];
+
+            // Parse and collect data
+            for (const [key, count] of Object.entries(items)) {
+                totalEmployees++;
+                totalReports += count;
+
+                // Split "NIP - NAME"
+                const parts = key.split(" - ");
+                const nip = parts[0];
+                const name = parts[1] || nip; // Fallback if no separator
+
+                allEmployees.push({
+                    nip: nip,
+                    name: name,
+                    count: count
+                });
+            }
+
+            // Update Header Stats
+            totalLaporanEl.text(totalReports.toLocaleString());
+            totalPegawaiEl.text(totalEmployees);
+
+            // Calculate Overall Percentage
+            let overallPercentage = 0;
+            if (totalEmployees > 0 && nilaiAmbang > 0) {
+                const maxPossibleReports = totalEmployees * nilaiAmbang;
+                overallPercentage = (totalReports / maxPossibleReports) * 100;
+            }
+
+            // Format percentage (e.g., "12.5%")
+            const formattedPercentage = overallPercentage.toFixed(1).replace(/\.0$/, '') + "%";
+            persentaseEl.text(formattedPercentage);
+
+            // Dynamic Styling for Percentage Badge
+            // Parent div styling
+            const badgeParent = persentaseEl.parent();
+            // Remove existing static classes if any (adjust based on your HTML, but safer to remove likely classes)
+            badgeParent.removeClass("bg-green-100 dark:bg-green-900/30 bg-orange-100 dark:bg-orange-900/30 bg-red-100 dark:bg-red-900/30");
+            persentaseEl.removeClass("text-green-600 dark:text-green-400 text-orange-600 dark:text-orange-400 text-red-600 dark:text-red-400");
+
+            if (overallPercentage >= 80) {
+                badgeParent.addClass("bg-green-100 dark:bg-green-900/30");
+                persentaseEl.addClass("text-green-600 dark:text-green-400");
+            } else if (overallPercentage >= 50) {
+                badgeParent.addClass("bg-orange-100 dark:bg-orange-900/30");
+                persentaseEl.addClass("text-orange-600 dark:text-orange-400");
+            } else {
+                badgeParent.addClass("bg-red-100 dark:bg-red-900/30");
+                persentaseEl.addClass("text-red-600 dark:text-red-400");
+            }
+
+            // Sort employees by count descending (optional, but usually good for stats)
+            allEmployees.sort((a, b) => b.count - a.count);
+
+            // Render List
+            renderList(allEmployees);
+        } else {
+            container.html('<div class="text-center text-red-500 py-4">Gagal memuat data.</div>');
+        }
+    }
+
+    // 1. Try Load from Cache
+    try {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            const parsed = JSON.parse(cachedData);
+            processAndRenderData(parsed);
+        }
+    } catch (e) {
+        console.error("Error loading cache", e);
+    }
+
+    // 2. Fetch Fresh Data
     fetch(endpoint)
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.data) {
-                const items = data.data.item;
-                nilaiAmbang = data.data.nilai_ambang || 10;
-                let totalReports = 0;
-                let totalEmployees = 0;
-                allEmployees = [];
-
-                // Parse and collect data
-                for (const [key, count] of Object.entries(items)) {
-                    totalEmployees++;
-                    totalReports += count;
-
-                    // Split "NIP - NAME"
-                    const parts = key.split(" - ");
-                    const nip = parts[0];
-                    const name = parts[1] || nip; // Fallback if no separator
-
-                    allEmployees.push({
-                        nip: nip,
-                        name: name,
-                        count: count
-                    });
-                }
-
-                // Update Header Stats
-                totalLaporanEl.text(totalReports.toLocaleString());
-                totalPegawaiEl.text(totalEmployees);
-
-                // Sort employees by count descending (optional, but usually good for stats)
-                allEmployees.sort((a, b) => b.count - a.count);
-
-                // Initial Render
-                renderList(allEmployees);
-
+            if (data.success) {
+                // Update Cache
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                // Update UI (with fresh data)
+                processAndRenderData(data);
             } else {
-                container.html('<div class="text-center text-red-500 py-4">Gagal memuat data.</div>');
+                // If fetch fails but we had cache, we might want to stay quiet or show toast.
+                // If we have no data at all shown, show error.
+                if (allEmployees.length === 0) {
+                    container.html('<div class="text-center text-red-500 py-4">Gagal memuat data.</div>');
+                }
             }
         })
         .catch(err => {
             console.error("Error fetching statistic:", err);
-            container.html('<div class="text-center text-red-500 py-4">Terjadi kesalahan koneksi.</div>');
+            // Only show error message if list is empty (no cache loaded)
+            if (allEmployees.length === 0) {
+                container.html('<div class="text-center text-red-500 py-4">Terjadi kesalahan koneksi.</div>');
+            }
         });
 
     // Search Filter Logic
