@@ -14,7 +14,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
 
-<body class="pb-24">
+<body class="pb-24 dark:bg-slate-950 dark:text-white">
 
     <!-- Header Section -->
     <div class="bg-blue-700 text-white p-6 rounded-b-[2.5rem] shadow-lg mb-6">
@@ -34,7 +34,7 @@
 
     <!-- Main Content -->
     <div class="px-4 max-w-lg mx-auto">
-        <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
+        <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 mb-6">
             <form id="mobileForm">
                 <div class="flex items-center justify-between px-0 pt-0 pb-0">
                     <div class=" text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Pegawai</div>
@@ -61,7 +61,7 @@
                         <span id="dayOverlay"
                             class="absolute left-11 top-2 text-xs text-gray-500 font-semibold pointer-events-none transition-all z-10"></span>
                         <input id="mobileDatePicker" required readonly type="text"
-                            class="w-full pl-11 pr-4 pt-6 pb-2 h-14 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium">
+                            class="w-full pl-11 pr-4 pt-6 pb-2 h-14 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium dark:text-white">
                     </div>
                 </div>
 
@@ -91,14 +91,14 @@
                 <div class="lock text-xs font-semibold text-gray-500 uppercase ml-1 mb-4">
                     <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Uraian Tugas</label>
                     <textarea id="mobileComments" rows="4" placeholder="Berikan uraian di sini ..."
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+                        class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white dark:placeholder-slate-500"></textarea>
                 </div>
 
                 <!-- Output/Hasil -->
                 <div class="lock text-xs font-semibold text-gray-500 uppercase ml-1 mb-4">
                     <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Output/Hasil</label>
                     <textarea id="mobileFeedback" rows="4" placeholder="Berikan output/hasil di sini ..."
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+                        class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white dark:placeholder-slate-500"></textarea>
                 </div>
 
                 <!-- Foto Upload -->
@@ -137,7 +137,7 @@
 
     <!-- Bottom Navigation Mobile Only Look) -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <a href="./index.html" class="flex flex-col items-center text-blue-600">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] mt-1 font-medium">Beranda</span>

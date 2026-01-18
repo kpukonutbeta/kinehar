@@ -34,7 +34,7 @@ $(document).ready(function () {
             }
 
             const html = `
-                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800/50 mx-2 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 mx-2 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-700">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
                             <!-- Avatar Placeholder based on Name Initial or just default icon -->
                             <div class="shrink-0 w-10 h-10 rounded-full border-2 border-primary/10 flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-base">

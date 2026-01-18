@@ -16,7 +16,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
 
-<body class="pb-24">
+<body class="pb-24 dark:bg-slate-950 dark:text-white">
     <!-- Header Section -->
     <div class="bg-blue-700 text-white p-6 rounded-b-[2.5rem] shadow-lg mb-6">
         <div class="block" style="display: block; height: 33px;">
@@ -35,8 +35,10 @@
 
     <!-- Main Content -->
     <div class="px-4 max-w-lg mx-auto">
-        <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
-            <div class="glass-card rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div
+            class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-800 mb-6 rounded-3xl">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
                 <div class="flex justify-between items-start">
                     <div>
                         <p
@@ -107,7 +109,7 @@
 
     <!-- Bottom Navigation Mobile Only Look) -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 px-8 py-4 flex justify-between items-center max-w-lg mx-auto rounded-t-3xl shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         <a href="./index.html" class="flex flex-col items-center text-gray-400">
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] mt-1 font-medium">Beranda</span>
@@ -134,10 +136,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
+        /* Removed custom glass-card to use Tailwind utility classes */
 
         .input-focus:focus {
             border-color: #3b82f6;

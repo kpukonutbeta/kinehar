@@ -88,7 +88,7 @@ $(document).ready(function () {
     }
 
     function renderGroupedList(items) {
-        listContainer.empty();
+        listContainer.empty().removeClass('pb-32');
 
         // Unique Days
         const uniqueDates = new Set(items.map(item => item.date));
