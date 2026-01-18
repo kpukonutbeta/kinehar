@@ -75,7 +75,38 @@ $("#mobileDatePicker").AnyPicker(
 
 $(document).ready(function () {
 
-    // Set default date to today
+    // Check for selected employee
+    const STORAGE_KEY = 'saved_asn_selection';
+    let savedSelection = null;
+    const formContainer = $("#mobileForm");
+
+    try {
+        const storedData = localStorage.getItem(STORAGE_KEY);
+        if (storedData) {
+            savedSelection = JSON.parse(storedData);
+        }
+    } catch (e) {
+        console.error("Error reading from localStorage", e);
+    }
+
+    if (!savedSelection || !savedSelection.nip) {
+        // Hide form fields
+        formContainer.empty();
+        formContainer.append(`
+            <div class="text-center py-8">
+                <div class="mb-4">
+                    <i class="fas fa-user-times text-4xl text-gray-300"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-700 dark:text-gray-200 mb-2">Pegawai Belum Dipilih</h3>
+                <p class="text-gray-500 text-sm mb-6">Silakan pilih pegawai terlebih dahulu di halaman Profil untuk melanjutkan pengisian kinerja.</p>
+                <a href="./profile.html" class="inline-block bg-blue-600 text-white font-medium px-6 py-2 rounded-xl shadow-lg hover:bg-blue-700 transition-colors">
+                    Pilih Pegawai
+                </a>
+            </div>
+        `);
+        return; // Stop execution
+    }
+
     // Set default date to today
     const now = new Date();
     updateDateDisplay(now);

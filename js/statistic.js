@@ -7,6 +7,31 @@ $(document).ready(function () {
     const persentaseEl = $("#persentaseLaporanBulanIni");
     const searchInput = $("#searchEmployee");
 
+    // Check for selected employee
+    const STORAGE_KEY_SELECTION = 'saved_asn_selection';
+    let currentNip = null;
+
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY_SELECTION);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.nip) {
+                currentNip = parsed.nip;
+            }
+        }
+    } catch (e) {
+        console.error("Error reading selection cache", e);
+    }
+
+    if (!currentNip) {
+        container.html('<div class="text-center text-red-500 py-4">Silakan pilih pegawai terlebih dahulu di halaman Profil/Home.</div>');
+        // Clear stats
+        totalLaporanEl.text("0");
+        totalPegawaiEl.text("0");
+        persentaseEl.text("0%");
+        return;
+    }
+
     let allEmployees = []; // Store raw data for filtering
     let nilaiAmbang = 10;
 
@@ -34,7 +59,7 @@ $(document).ready(function () {
             }
 
             const html = `
-                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 mx-2 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-700">
                         <div class="flex items-center gap-3 flex-1 min-w-0">
                             <!-- Avatar Placeholder based on Name Initial or just default icon -->
                             <div class="shrink-0 w-10 h-10 rounded-full border-2 border-primary/10 flex items-center justify-center bg-blue-100 text-blue-600 font-bold text-base">
