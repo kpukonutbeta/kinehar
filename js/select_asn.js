@@ -241,6 +241,34 @@ $(document).ready(function () {
   }
 
   // 2. Fetch Data
+
+  // Show Skeleton Loader
+  dropdownList.html(`
+      <div class="p-2 space-y-2">
+          <div class="flex items-center gap-3 p-2">
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="flex-1 space-y-1">
+                  <div class="skeleton h-4 w-3/4"></div>
+                  <div class="skeleton h-3 w-1/2"></div>
+              </div>
+          </div>
+          <div class="flex items-center gap-3 p-2">
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="flex-1 space-y-1">
+                  <div class="skeleton h-4 w-2/3"></div>
+                  <div class="skeleton h-3 w-1/3"></div>
+              </div>
+          </div>
+          <div class="flex items-center gap-3 p-2">
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="flex-1 space-y-1">
+                  <div class="skeleton h-4 w-5/6"></div>
+                  <div class="skeleton h-3 w-1/4"></div>
+              </div>
+          </div>
+      </div>
+  `);
+
   fetch("https://proxy.arti-pos.com?action=asnlist")
     .then(res => res.json())
     .then(data => {
