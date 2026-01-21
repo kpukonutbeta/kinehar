@@ -139,6 +139,12 @@ $(document).ready(function () {
       dropdownList.removeClass('hidden');
       dropdownArrow.css('transform', 'translateY(-50%) rotate(180deg)');
     } else {
+      // Restore input value if closing without selection (or confirm current selection)
+      const currentNip = hiddenInput.val();
+      if (currentNip && pegawaiMap[currentNip]) {
+        searchInput.val(pegawaiMap[currentNip].nama);
+      }
+
       dropdownList.addClass('hidden');
       dropdownArrow.css('transform', 'translateY(-50%) rotate(0deg)');
     }
@@ -176,8 +182,19 @@ $(document).ready(function () {
 
   // --- EVENT LISTENERS ---
 
-  searchInput.on('focus click', function () {
+  searchInput.on('focus', function () {
+    $(this).val(''); // Auto clear on focus for easy searching
+    filterDropdown('');
     toggleDropdown(true);
+  });
+
+  // Ensure click also opens if not already open (but doesn't clear if just clicking to move cursor)
+  searchInput.on('click', function () {
+    if (dropdownList.hasClass('hidden')) {
+      $(this).val('');
+      filterDropdown('');
+      toggleDropdown(true);
+    }
   });
 
   searchInput.on('input', function () {
