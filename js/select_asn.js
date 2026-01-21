@@ -2,7 +2,13 @@ $(document).ready(function () {
   const pegawaiMap = {};
   const jabatanInput = $('#mobilePosition');
   const unitKerjaInput = $('#mobileDepartment');
-  const selectEl = $('#mobileNameSelect');
+
+  // Custom Dropdown Elements
+  const searchInput = $('#asnSearchInput');
+  const hiddenInput = $('#mobileNameSelect');
+  const dropdownList = $('#asnDropdownList');
+  const dropdownArrow = $('#dropdownArrow');
+  const dropdownContainer = searchInput.closest('.relative');
 
   // --- HELPER FUNCTIONS ---
   function getInitials(name) {
@@ -67,73 +73,169 @@ $(document).ready(function () {
     }
   }
 
-  // Initialize Select2
-  selectEl.select2();
-  const container = selectEl.data('select2').$container;
+  // --- DROPDOWN LOGIC ---
 
-  // --- LOCAL STORAGE LOGIC START ---
+  function renderDropdownItems(data) {
+    dropdownList.empty();
+
+    if (data.length === 0) {
+      dropdownList.append(`
+            <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                Data tidak ditemukan
+            </div>
+        `);
+      return;
+    }
+
+    data.forEach(item => {
+      const initials = getInitials(item['Nama Lengkap']);
+      const color = getAvatarColor(item['Nama Lengkap']);
+
+      const itemHtml = `
+            <div class="dropdown-item" data-nip="${item.NIP}" data-name="${item['Nama Lengkap']}">
+                <div class="initials-avatar" style="background-color: ${color}">${initials}</div>
+                <div class="item-text">
+                    <span class="item-name">${item['Nama Lengkap']}</span>
+                    <span class="item-nip">${item.NIP}</span>
+                </div>
+            </div>
+        `;
+      dropdownList.append(itemHtml);
+    });
+  }
+
+  function filterDropdown(query) {
+    const items = dropdownList.find('.dropdown-item');
+    let hasVisible = false;
+
+    query = query.toLowerCase();
+
+    items.each(function () {
+      const name = $(this).data('name').toLowerCase();
+      const nip = $(this).data('nip').toString();
+
+      if (name.includes(query) || nip.includes(query)) {
+        $(this).show();
+        hasVisible = true;
+      } else {
+        $(this).hide();
+      }
+    });
+
+    // Remove existing 'no results' message
+    dropdownList.find('.no-results').remove();
+
+    if (!hasVisible) {
+      dropdownList.append(`
+            <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 no-results">
+                Tidak ada hasil yang cocok
+            </div>
+        `);
+    }
+  }
+
+  function toggleDropdown(show) {
+    if (show) {
+      dropdownList.removeClass('hidden');
+      dropdownArrow.css('transform', 'translateY(-50%) rotate(180deg)');
+    } else {
+      dropdownList.addClass('hidden');
+      dropdownArrow.css('transform', 'translateY(-50%) rotate(0deg)');
+    }
+  }
+
+  function selectEmployee(nip) {
+    const pegawai = pegawaiMap[nip];
+    if (!pegawai) return;
+
+    // Update Input
+    searchInput.val(pegawai.nama);
+    hiddenInput.val(nip);
+
+    // Update UI Details
+    $('#textName').text(pegawai.nama);
+    $('#textNip').text(nip);
+    $('#textPosition').text(pegawai.jabatan);
+    $('#textDepartment').text(pegawai.unitKerja);
+
+    // Update Avatar & Countdown
+    updateAvatar(pegawai.nama);
+    updateBirthdayCountdown(nip);
+
+    // Save to LocalStorage
+    const dataToSave = {
+      nip: nip,
+      nama: pegawai.nama,
+      jabatan: pegawai.jabatan,
+      unitKerja: pegawai.unitKerja
+    };
+    localStorage.setItem('saved_asn_selection', JSON.stringify(dataToSave));
+
+    toggleDropdown(false);
+  }
+
+  // --- EVENT LISTENERS ---
+
+  searchInput.on('focus click', function () {
+    toggleDropdown(true);
+  });
+
+  searchInput.on('input', function () {
+    filterDropdown($(this).val());
+    toggleDropdown(true);
+  });
+
+  // Handle Item Click
+  dropdownList.on('click', '.dropdown-item', function () {
+    const nip = $(this).data('nip');
+    selectEmployee(nip);
+  });
+
+  // Close dropdown when clicking outside
+  $(document).on('click', function (e) {
+    if (!dropdownContainer.is(e.target) && dropdownContainer.has(e.target).length === 0) {
+      toggleDropdown(false);
+    }
+  });
+
+
+  // --- INITIALIZATION & DATA FETCHING ---
+
+  // 1. Check LocalStorage first
   const STORAGE_KEY = 'saved_asn_selection';
-  let savedSelection = null;
-
   try {
     const storedData = localStorage.getItem(STORAGE_KEY);
     if (storedData) {
-      savedSelection = JSON.parse(storedData);
+      const parsed = JSON.parse(storedData);
+      if (parsed.nip) {
+        // Pre-fill UI temporarily while fetching
+        searchInput.val(parsed.nama);
+        hiddenInput.val(parsed.nip);
+        $('#textName').text(parsed.nama);
+        $('#textNip').text(parsed.nip);
+        $('#textPosition').text(parsed.jabatan);
+        $('#textDepartment').text(parsed.unitKerja);
+        updateAvatar(parsed.nama);
+        updateBirthdayCountdown(parsed.nip);
+      }
     }
   } catch (e) {
     console.error("Error reading from localStorage", e);
   }
 
-  // Restore state UI immediately if data exists
-  if (savedSelection && savedSelection.nip) {
-    const tempOption = new Option(
-      `${savedSelection.nip} - ${savedSelection.nama}`,
-      savedSelection.nip,
-      true,
-      true
-    );
-    selectEl.append(tempOption).trigger('change');
-
-    if (savedSelection.nama) {
-      $('#textName').text(savedSelection.nama);
-      updateAvatar(savedSelection.nama); // Update Avatar here
-    }
-
-    if (savedSelection.nip) {
-      $('#textNip').text(savedSelection.nip);
-    }
-
-    if (savedSelection.jabatan) {
-      $('#textPosition').text(savedSelection.jabatan);
-    }
-
-    if (savedSelection.unitKerja) {
-      $('#textDepartment').text(savedSelection.unitKerja);
-    }
-
-    updateBirthdayCountdown(savedSelection.nip);
-
-    container.removeClass('loading');
-    selectEl.prop('disabled', false);
-  } else {
-    container.addClass('loading');
-    selectEl.prop('disabled', true);
-    selectEl.append(new Option("Memuat data...", "", true, true));
-  }
-  // --- LOCAL STORAGE LOGIC END ---
-
+  // 2. Fetch Data
   fetch("https://proxy.arti-pos.com?action=asnlist")
     .then(res => res.json())
     .then(data => {
-      const currentVal = selectEl.val();
+      // Clear loading state
+      dropdownList.empty();
 
-      selectEl.empty();
-      selectEl.append(new Option("-- Belum pilih pegawai --", "", true, true));
+      if (!data || data.length === 0) {
+        dropdownList.html('<div class="p-4 text-center">Data kosong</div>');
+        return;
+      }
 
       data.forEach(item => {
-        const option = new Option(`${item['NIP']} - ${item['Nama Lengkap']}`, item.NIP, false, false);
-        selectEl.append(option);
-
         pegawaiMap[item.NIP] = {
           nama: item['Nama Lengkap'],
           jabatan: item.Jabatan,
@@ -141,60 +243,27 @@ $(document).ready(function () {
         };
       });
 
-      if (currentVal && pegawaiMap[currentVal]) {
-        selectEl.val(currentVal).trigger('change');
+      // Render Dropdown Items
+      renderDropdownItems(data);
 
-        const freshData = pegawaiMap[currentVal];
-        jabatanInput.val(freshData.jabatan).attr('placeholder', '');
-        unitKerjaInput.val(freshData.unitKerja).attr('placeholder', '');
+      // Re-validate selection from LocalStorage against fresh data
+      const currentNip = hiddenInput.val();
+      if (currentNip && pegawaiMap[currentNip]) {
+        // Verify data consistency
+        const freshData = pegawaiMap[currentNip];
+        jabatanInput.val(freshData.jabatan);
+        unitKerjaInput.val(freshData.unitKerja);
       } else {
-        selectEl.val("").trigger('change');
+        // If stored NIP is no longer valid, clear it? Or keep as is?
+        // Keeping as is for now, or we could reset if not found.
       }
 
-      container.removeClass('loading');
-      selectEl.prop('disabled', false);
-
-      // --- EVENT HANDLER ---
-      selectEl.on('change', function () {
-        const selectedNIP = $(this).val();
-        const pegawai = pegawaiMap[selectedNIP];
-
-        if (pegawai) {
-          // 1. Update UI
-          $('#textName').text(pegawai.nama);
-          $('#textNip').text(selectedNIP);
-          $('#textPosition').text(pegawai.jabatan);
-          $('#textDepartment').text(pegawai.unitKerja);
-
-          // Update Avatar & Countdown
-          updateAvatar(pegawai.nama);
-          updateBirthdayCountdown(selectedNIP);
-
-          // 2. Save to LocalStorage
-          const dataToSave = {
-            nip: selectedNIP,
-            nama: pegawai.nama,
-            jabatan: pegawai.jabatan,
-            unitKerja: pegawai.unitKerja
-          };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-
-        } else {
-          // Reset UI
-          $('#textName').text('---');
-          $('#textNip').text('---');
-          $('#textPosition').text('---');
-          $('#textDepartment').text('---');
-
-          updateAvatar('');
-          updateBirthdayCountdown(null);
-
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      });
     })
     .catch(err => {
       console.error("Gagal memuat data:", err);
-      container.removeClass('loading');
+      dropdownList.html('<div class="p-4 text-center text-red-500">Gagal memuat data</div>');
     });
+
+  // Remove loading class if previous existed
+  searchInput.prop('disabled', false);
 });

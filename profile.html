@@ -13,7 +13,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
         rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <!-- Select2 CSS Removed -->
     <link rel="stylesheet" type="text/css" href="css/main.css?v=150126-3" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-font.css" />
@@ -91,13 +91,28 @@
                         <div>
                             <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Pilih
                                 Pegawai</label>
-                            <div class="relative">
-                                <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <select
-                                    class="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white"
-                                    id="mobileNameSelect" required>
-                                    <option>-- Belum Pilih Pegawai --</option>
-                                </select>
+                            <div class="relative w-full">
+                                <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                                <input type="text" id="asnSearchInput"
+                                    class="w-full pl-11 pr-10 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white cursor-pointer placeholder-gray-400"
+                                    placeholder="Pilih Pegawai..." autocomplete="off">
+                                <input type="hidden" id="mobileNameSelect" name="nip">
+                                <!-- Keeping ID for compatibility or easy refactor -->
+
+                                <span
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-transform duration-200"
+                                    id="dropdownArrow">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </span>
+
+                                <div id="asnDropdownList"
+                                    class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-xl max-h-64 overflow-y-auto hidden z-50 p-1 custom-scrollbar">
+                                    <!-- List Items -->
+                                    <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400"
+                                        id="loadingState">
+                                        <i class="fas fa-circle-notch fa-spin mr-2"></i> Memuat data...
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -178,99 +193,92 @@
             padding: 1.1rem;
         }
 
-        /* Select2 Global Styles (Structure + Light Mode Default) */
-        .select2-container--default .select2-selection--single {
-            background-color: #f9fafb;
-            /* gray-50 */
-            border-color: #e5e7eb;
-            /* gray-200 */
-            color: #111827;
-            /* gray-900 */
-            height: 50px;
-            /* Match existing input height approx */
+        /* Custom Scrollbar for Dropdown */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+
+        /* Dropdown Item Styles */
+        .dropdown-item {
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            border-radius: 1rem;
-            /* rounded-2xl */
+            gap: 12px;
+            color: #374151;
+            /* gray-700 */
         }
 
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #111827;
-            /* gray-900 */
-            padding-left: 44px;
-            /* Space for icon */
-            line-height: normal;
+        .dark .dropdown-item {
+            color: #e2e8f0;
+            /* slate-200 */
         }
 
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 48px;
-            top: 1px;
-            right: 10px;
+        .dropdown-item:hover,
+        .dropdown-item.active {
+            background-color: #f1f5f9;
+            /* slate-100 */
         }
 
-        .select2-dropdown {
-            background-color: #ffffff;
-            border-color: #e5e7eb;
-            /* gray-200 */
-            border-radius: 1rem;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        .dark .dropdown-item:hover,
+        .dark .dropdown-item.active {
+            background-color: #1e293b;
+            /* slate-800 */
         }
 
-        .select2-container--default .select2-search--dropdown .select2-search__field {
-            border-radius: 0.5rem;
-            border-color: #e5e7eb;
-            padding: 8px;
+        .dropdown-item .initials-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
         }
 
-        /* Select2 Dark Mode Overrides (Colors Only) */
-        @media (prefers-color-scheme: dark) {
-            .select2-container--default .select2-selection--single {
-                background-color: #1e293b !important;
-                /* slate-800 */
-                border-color: #334155 !important;
-                /* slate-700 */
-                color: #ffffff !important;
-            }
+        .dropdown-item .item-text {
+            display: flex;
+            flex-direction: column;
+        }
 
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                color: #ffffff !important;
-            }
+        .dropdown-item .item-name {
+            font-size: 0.875rem;
+            /* 14px */
+            font-weight: 500;
+            line-height: 1.25;
+        }
 
-            .select2-dropdown {
-                background-color: #1e293b !important;
-                /* slate-800 */
-                border-color: #334155 !important;
-                /* slate-700 */
-                color: #ffffff !important;
-            }
-
-            .select2-container--default .select2-search--dropdown .select2-search__field {
-                background-color: #0f172a !important;
-                /* slate-900 */
-                border-color: #334155 !important;
-                color: #ffffff !important;
-            }
-
-            .select2-results__option {
-                color: #ffffff !important;
-            }
-
-            .select2-container--default .select2-results__option--selected {
-                background-color: #334155 !important;
-            }
-
-            .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-                background-color: #3b82f6 !important;
-                /* blue-500 */
-                color: #ffffff !important;
-            }
+        .dropdown-item .item-nip {
+            font-size: 0.75rem;
+            /* 12px */
+            color: #9ca3af;
+            /* gray-400 */
         }
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/select_asn.js?v=150126-3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="js/select_asn.js?v=150126-4"></script>
+    <!-- Select2 JS Removed -->
 </body>
 
 </html>
