@@ -4,6 +4,7 @@ const hariIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
 const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
 // Helper function to update Date display with Overlay
+// Helper function to update Date display with Overlay
 function updateDateDisplay(date) {
     const d = date.getDate();
     const m = bulanIndo[date.getMonth()];
@@ -12,17 +13,14 @@ function updateDateDisplay(date) {
 
     // Value: "15 Januari 2026"
     const dateValue = `${d} ${m} ${y}`;
-    // Overlay: "Kamis"
-    const dayText = dayName;
+    // Overlay: "Kamis."
+    const dayText = `${dayName}, `;
 
     // Set Value
     $("#mobileDatePicker").val(dateValue);
 
     // Set Overlay
-    $("#dayOverlay").text(dayText);
-
-    // Reset padding (if any remains from previous logic)
-    $("#mobileDatePicker").css('padding-left', '');
+    $("#dayPrefixDisplay").text(dayText);
 }
 
 // Calculate constraints
@@ -110,6 +108,63 @@ $(document).ready(function () {
     // Set default date to today
     const now = new Date();
     updateDateDisplay(now);
+
+    // Trigger date picker when container is clicked
+    $("#dateContainer").on("click", function () {
+        $("#mobileDatePicker").trigger("click");
+    });
+
+    // --- Autosave Logic ---
+    const DRAFT_KEY = 'kinehar_draft';
+
+    function loadDraft() {
+        try {
+            const draft = localStorage.getItem(DRAFT_KEY);
+            if (draft) {
+                const data = JSON.parse(draft);
+                if (data.comments) $("#mobileComments").val(data.comments);
+                if (data.feedback) $("#mobileFeedback").val(data.feedback);
+            }
+        } catch (e) { console.error("Error loading draft", e); }
+    }
+
+    function saveDraft() {
+        const data = {
+            comments: $("#mobileComments").val(),
+            feedback: $("#mobileFeedback").val()
+        };
+        try {
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        } catch (e) { }
+    }
+
+    // Load draft on init
+    loadDraft();
+
+    // Auto-save on input
+    $("#mobileComments, #mobileFeedback").on('input', function () {
+        saveDraft();
+    });
+
+    // Reset Button Handler
+    $("#resetButton").on("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // prevent bubbling if needed
+
+        if (confirm("Reset formulir? Draft tulisan akan dihapus.")) {
+            // Clear inputs
+            $("#mobileComments").val('');
+            $("#mobileFeedback").val('');
+
+            // Clear logic cache
+            try {
+                localStorage.removeItem(DRAFT_KEY);
+            } catch (e) { }
+
+            showMobileToast("Formulir dan draft di-reset");
+        }
+    });
+    // --- End Autosave Logic ---
 
     /*
     // Mobile-optimized select2 with search
@@ -280,6 +335,11 @@ $(document).ready(function () {
             return;
         }
 
+        // Disable fields
+        const fieldsToDisable = [$("#mobileComments"), $("#mobileFeedback"), $("#mobileDatePicker")];
+        fieldsToDisable.forEach(field => field.prop("disabled", true));
+        $("#dateContainer").addClass("pointer-events-none opacity-60"); // Visual disable for date wrapper
+
         // Actual AJAX would look like this:
         fetch("https://proxy.arti-pos.com", {
             method: "POST",
@@ -298,6 +358,11 @@ $(document).ready(function () {
                 // Reset specific fields only (Textareas and Images)
                 $("#mobileComments").val('');
                 $("#mobileFeedback").val('');
+
+                // Clear autosave cache
+                try {
+                    localStorage.removeItem('kinehar_draft');
+                } catch (e) { }
 
                 // Do NOT reset Date, Name, Position, Department
                 // $("#mobileForm")[0].reset(); 
@@ -324,6 +389,10 @@ $(document).ready(function () {
                 $("#submitSpinner").hide();
                 $(".btn-submit").prop("disabled", false);
 
+                // Re-enable fields
+                fieldsToDisable.forEach(field => field.prop("disabled", false));
+                $("#dateContainer").removeClass("pointer-events-none opacity-60");
+
                 // Scroll to top
                 window.scrollTo(0, 0);
             })
@@ -332,6 +401,10 @@ $(document).ready(function () {
                 $("#submitText").show();
                 $("#submitSpinner").hide();
                 $(".btn-submit").prop("disabled", false);
+
+                // Re-enable fields on error too
+                fieldsToDisable.forEach(field => field.prop("disabled", false));
+                $("#dateContainer").removeClass("pointer-events-none opacity-60");
             });
         /*
         $.ajax({
