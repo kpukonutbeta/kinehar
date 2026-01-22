@@ -264,7 +264,29 @@ $(document).ready(function () {
             visibleCount = 0;
             renderNextBatch();
         } else {
-            listContainer.html('<div class="text-center text-gray-500 py-4">Memuat data...</div>');
+            // Skeleton Loading
+            let skeletons = '';
+            for (let i = 0; i < 3; i++) {
+                skeletons += `
+                <div class="flex bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-[#cfd7e7] dark:border-slate-700 h-[100px]">
+                    <div class="bg-slate-100 dark:bg-slate-900/50 w-[75px] border-r border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center gap-2 p-2">
+                        <div class="skeleton skeleton-text w-8 h-3"></div>
+                        <div class="skeleton skeleton-text w-10 h-8"></div>
+                        <div class="skeleton skeleton-text w-8 h-2"></div>
+                    </div>
+                    <div class="p-3 flex-1 flex flex-col gap-2 justify-center">
+                        <div class="flex justify-between">
+                             <div class="skeleton skeleton-text w-24 h-4"></div>
+                             <div class="skeleton skeleton-text w-16 h-6 rounded-md"></div>
+                        </div>
+                        <div class="skeleton skeleton-text w-full h-3"></div>
+                        <div class="skeleton skeleton-text w-3/4 h-3"></div>
+                        <div class="skeleton skeleton-text w-1/2 h-3"></div>
+                    </div>
+                </div>
+                `;
+            }
+            listContainer.html(skeletons);
             loadMoreContainer.addClass('hidden');
             totalHariEl.text('...');
         }

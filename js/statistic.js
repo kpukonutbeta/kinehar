@@ -166,6 +166,36 @@ $(document).ready(function () {
     }
 
     // 2. Fetch Fresh Data
+    // Show Skeletons if no data shown
+    if (allEmployees.length === 0) {
+        let skeletons = '';
+        for (let i = 0; i < 5; i++) {
+            skeletons += `
+            <div class="flex items-center gap-4 bg-white dark:bg-slate-800 mb-2 rounded-xl px-4 min-h-[72px] py-3 justify-between shadow-sm border border-slate-100 dark:border-slate-700">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <div class="skeleton skeleton-circle w-10 h-10 shrink-0"></div>
+                    <div class="flex flex-col justify-center w-full gap-2">
+                        <div class="skeleton skeleton-text w-32 h-4"></div>
+                        <div class="skeleton skeleton-text w-20 h-3"></div>
+                    </div>
+                </div>
+                <div class="shrink-0 flex flex-col items-end gap-2">
+                    <div class="skeleton skeleton-text w-12 h-5 rounded"></div>
+                    <div class="skeleton skeleton-text w-16 h-2 rounded-full"></div>
+                </div>
+            </div>
+            `;
+        }
+        container.html(skeletons);
+
+        // Also skeleton for summary numbers if empty
+        if (totalLaporanEl.text() === "0" || totalLaporanEl.text() === "---") {
+            // We can keep specific skeletons or just let them stay as "..." or "0"
+            // But let's make them shimmer for better effect if "---"
+            // totalLaporanEl.html('<div class="skeleton w-16 h-8 inline-block"></div>');
+        }
+    }
+
     fetch(endpoint)
         .then(response => response.json())
         .then(data => {
