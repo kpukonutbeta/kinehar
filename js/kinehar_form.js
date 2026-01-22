@@ -151,18 +151,16 @@ $(document).ready(function () {
         e.preventDefault();
         e.stopPropagation(); // prevent bubbling if needed
 
-        if (confirm("Reset formulir? Draft tulisan akan dihapus.")) {
-            // Clear inputs
-            $("#mobileComments").val('');
-            $("#mobileFeedback").val('');
+        // Clear inputs
+        $("#mobileComments").val('');
+        $("#mobileFeedback").val('');
 
-            // Clear logic cache
-            try {
-                localStorage.removeItem(DRAFT_KEY);
-            } catch (e) { }
+        // Clear logic cache
+        try {
+            localStorage.removeItem(DRAFT_KEY);
+        } catch (e) { }
 
-            showMobileToast("Formulir dan draft di-reset");
-        }
+        showMobileToast("Formulir dan draft di-reset");
     });
     // --- End Autosave Logic ---
 
