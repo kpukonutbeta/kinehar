@@ -1,8 +1,11 @@
 // Fade out and navigate
 function navigateTo(url) {
-    document.body.classList.remove('page-loaded'); // Remove opacity: 1 (reverts to opacity: 0 via CSS)
-    document.body.classList.add('page-transitioning'); // Explicit fade out class if needed (optional since base class handles it)
+    const loader = document.getElementById('page-loader');
+    if (loader) {
+        loader.classList.remove('loader-hidden');
+    }
 
+    // Add small delay to ensure loader transition starts
     setTimeout(() => {
         window.location.href = url;
     }, 300); // Match CSS transition duration
@@ -10,8 +13,11 @@ function navigateTo(url) {
 
 // Fade in on load
 document.addEventListener('DOMContentLoaded', () => {
-    // Small delay to ensure browser rendering cycle has started
-    setTimeout(() => {
-        document.body.classList.add('page-loaded');
-    }, 50);
+    const loader = document.getElementById('page-loader');
+    if (loader) {
+        // Small delay to ensure browser rendering cycle has started
+        setTimeout(() => {
+            loader.classList.add('loader-hidden');
+        }, 50);
+    }
 });

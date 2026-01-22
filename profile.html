@@ -23,6 +23,15 @@
 
 <body class="pb-24 dark:bg-slate-950 dark:text-white">
 
+    <!-- Page Loader -->
+    <div id="page-loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/KPU_Logo.svg" alt="Loading..."
+                class="w-12 h-12 opacity-80">
+        </div>
+    </div>
+
     <!-- Header Section -->
     <div class="bg-blue-700 text-white p-6 rounded-b-[2.5rem] shadow-lg mb-6">
         <div class="flex items-center space-x-4">
@@ -185,8 +194,7 @@
 
         .input-focus:focus {
             border-color: #3b82f6;
-            ring: 2px;
-            ring-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6;
         }
 
         .p-6 {
