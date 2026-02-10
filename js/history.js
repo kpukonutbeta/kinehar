@@ -30,15 +30,35 @@ $(document).ready(function () {
         return;
     }
 
-    // 2. Auto-select Month (Current Month/Year)
+    // 2. Generate Dynamic Month Options & Auto-select Current Month
     const now = new Date();
-    const subMonths = ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"];
-    const currentVal = `${subMonths[now.getMonth()]}-${now.getFullYear()}`;
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
+    // Clear existing options first
+    periodeSelect.empty();
 
-    // Check if dropdown has this value, if so select it. Else default to whatever is selected.
-    if (periodeSelect.find(`option[value="${currentVal}"]`).length > 0) {
-        periodeSelect.val(currentVal);
+    // Generate last 12 months (current month + 11 previous)
+    for (let i = 0; i < 12; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const mIndex = d.getMonth(); // 0-11
+        const year = d.getFullYear();
+        
+        const value = `${monthNames[mIndex].toLowerCase()}-${year}`;
+        const text = `${monthNames[mIndex]} ${year}`;
+        
+        const option = $('<option></option>').attr('value', value).text(text);
+        
+        // Select the first option (current month) by default
+        if (i === 0) {
+            option.attr('selected', 'selected');
+        }
+        
+        periodeSelect.append(option);
     }
+
+    // Set value explicitly to current month just in case
+    const currentVal = `${monthNames[now.getMonth()].toLowerCase()}-${now.getFullYear()}`;
+    periodeSelect.val(currentVal);
 
     // 3. Helper Functions
     function formatParamDate(value) {
