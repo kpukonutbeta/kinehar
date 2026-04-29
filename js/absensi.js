@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let currentSelection = null;
     let manualOverride = false;
+    let isLoadingData = false;
 
     function updateClock() {
         const now = new Date();
