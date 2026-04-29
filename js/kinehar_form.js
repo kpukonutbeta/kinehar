@@ -280,8 +280,9 @@ $(document).ready(function () {
 
         // Show loading state
         $("#submitText").hide();
+        $("#submitTextAlt").hide();
         $("#submitSpinner").show();
-        $(".btn-submit").prop("disabled", true);
+        $("#btnSubmit").prop("disabled", true);
 
         // Date is now clean in the input value, no need to parse day name out.
         const cleanDate = $("#mobileDatePicker").val();
@@ -323,8 +324,9 @@ $(document).ready(function () {
         if (emptyField) {
             showMobileToast("Isikan semua field yang diperlukan");
             $("#submitText").show();
+            $("#submitTextAlt").show();
             $("#submitSpinner").hide();
-            $(".btn-submit").prop("disabled", false);
+            $("#btn-submit").prop("disabled", false);
 
             if (emptyField.hasClass('mobile-select2')) {
                 emptyField.select2('open');
@@ -385,8 +387,9 @@ $(document).ready(function () {
 
                 // Reset button state
                 $("#submitText").show();
+                $("#submitTextAlt").show()
                 $("#submitSpinner").hide();
-                $(".btn-submit").prop("disabled", false);
+                $("#btn-submit").prop("disabled", false);
 
                 // Re-enable fields
                 fieldsToDisable.forEach(field => field.prop("disabled", false));
@@ -398,8 +401,9 @@ $(document).ready(function () {
             .catch(err => {
                 showMobileToast("Error: " + err)
                 $("#submitText").show();
+                $("#submitTextAlt").show()
                 $("#submitSpinner").hide();
-                $(".btn-submit").prop("disabled", false);
+                $("#btn-submit").prop("disabled", false);
 
                 // Re-enable fields on error too
                 fieldsToDisable.forEach(field => field.prop("disabled", false));

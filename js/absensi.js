@@ -82,7 +82,7 @@ $(document).ready(function () {
 
         // 2. Fetch Latest from Server
         isLoadingData = true;
-        $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+        validateSaveButton();
 
         const url = `https://proxy.arti-pos.com?action=absensi_status&date=${formattedDate}&nip=${asn.nip}`;
 
@@ -114,15 +114,21 @@ $(document).ready(function () {
 
     function validateSaveButton() {
         if (!currentSelection) {
-            $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+            $('#btnSimpan').prop('disabled', true)
+                .addClass('bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed')
+                .removeClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200');
             return;
         }
 
         const isAbsen = $(`#${currentSelection}`).find('span[id^="status-"]').attr('data-absen') === 'true';
         if (isAbsen || isLoadingData) {
-            $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+            $('#btnSimpan').prop('disabled', true)
+                .addClass('bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed')
+                .removeClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200');
         } else {
-            $('#btnSimpan').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+            $('#btnSimpan').prop('disabled', false)
+                .removeClass('bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed')
+                .addClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200');
         }
     }
 
@@ -328,6 +334,7 @@ $(document).ready(function () {
         // Disable button & show loading
         $btn.prop('disabled', true).html('<span class="loader-spinner !w-5 !h-5 !border-2"></span> Menyimpan...');
         isLoadingData = true;
+        validateSaveButton();
 
         // POST to GAS via Proxy
         fetch("https://proxy.arti-pos.com", {

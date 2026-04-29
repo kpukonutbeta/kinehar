@@ -7,6 +7,8 @@
     <title>Formulir Isian Kinerja Harian</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="css/main.css?v=150126-3" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker.css" />
     <link rel="stylesheet" type="text/css" href="libs/anypicker-font.css" />
@@ -128,7 +130,10 @@
 
                 <!-- Submit Button -->
                 <div class="flex gap-3">
-                    <button type="submit" class="btn btn-submit">
+                    <button type="submit" id="btnSubmit"
+                        class="w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-3xl font-bold text-sm shadow-lg shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2">
+                        <span id="submitTextAlt" class="material-symbols-outlined"
+                            style="padding-top: 4px; padding-bottom: 4px;">task_alt</span>
                         <span id="submitText">Simpan Kinerja</span>
                         <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status"
                             aria-hidden="true" style="display: none;"></span>
