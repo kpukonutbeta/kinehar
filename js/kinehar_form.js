@@ -303,6 +303,7 @@ $(document).ready(function () {
         }
 
         const formData = {
+            action: "kinerja",
             date: cleanDate,
             nip: savedSelection.nip,
             name: savedSelection.nama,

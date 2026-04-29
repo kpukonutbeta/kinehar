@@ -130,7 +130,7 @@ $(document).ready(function () {
     // --- BUTTON HANDLER ---
     $('#btnSimpan').on('click', function () {
         if (!currentSelection) {
-            alert('Pilih sesi absensi terlebih dahulu.');
+            showAlert('Pilih Sesi', 'Silakan pilih sesi absensi terlebih dahulu.', 'error');
             return;
         }
 
@@ -140,17 +140,61 @@ $(document).ready(function () {
             return;
         }
 
+        // Get stored ASN data
+        let savedSelection = null;
+        try {
+            const storedData = localStorage.getItem('saved_asn_selection');
+            if (storedData) savedSelection = JSON.parse(storedData);
+        } catch (e) {}
+
+        if (!savedSelection || !savedSelection.nip) {
+            showAlert('Pegawai Belum Dipilih', 'Silakan pilih pegawai terlebih dahulu di halaman Profil.', 'error');
+            return;
+        }
+
         const $btn = $(this);
         const originalContent = $btn.html();
 
-        // Simulate saving
+        // Prepare Data
+        const now = new Date();
+        const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const formattedDate = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
+        
+        const formData = {
+            action: "absensi",
+            date: formattedDate,
+            sesi: currentSelection.split('-')[1], // "pagi", "siang", "sore"
+            nip: savedSelection.nip,
+            name: savedSelection.nama,
+            position: savedSelection.jabatan,
+            location: isRecording && userLocation ? `${userLocation.lat}, ${userLocation.lng}` : "Tanpa Lokasi"
+        };
+
+        // Disable button & show loading
         $btn.prop('disabled', true).html('<span class="loader-spinner !w-5 !h-5 !border-2"></span> Menyimpan...');
 
-        setTimeout(() => {
-            let locMsg = isRecording && userLocation ? `Lokasi Anda telah direkam (${userLocation.lat}, ${userLocation.lng}).` : 'Presensi disimpan tanpa data lokasi.';
-            showAlert('Berhasil!', `Kehadiran ${currentSelection.split('-')[1].toUpperCase()} Anda telah berhasil dikirim. ${locMsg}`, 'success');
+        // POST to GAS via Proxy
+        fetch("https://proxy.arti-pos.com", {
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                let locMsg = isRecording && userLocation ? `Lokasi Anda telah direkam.` : 'Presensi disimpan tanpa data lokasi.';
+                showAlert('Berhasil!', `Kehadiran ${formData.sesi.toUpperCase()} Anda telah berhasil dikirim. ${locMsg}`, 'success');
+            } else {
+                showAlert('Gagal Simpan', data.error || 'Terjadi kesalahan saat menyimpan data.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error:', err);
+            showAlert('Error', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.', 'error');
+        })
+        .finally(() => {
             $btn.prop('disabled', false).html(originalContent);
-        }, 1500);
+        });
     });
 
     // --- MODAL LOGIC ---
