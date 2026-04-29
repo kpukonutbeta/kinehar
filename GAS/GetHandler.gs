@@ -13,6 +13,10 @@ function handleGet(e) {
     return createCorsResponse(
       {success: true, data: getWorkDayCounts(e.parameter.date)}
     );
+  } else if (action === "absensi_status") {
+    return createCorsResponse(
+      {success: true, data: getAbsensiStatus(e.parameter.date, e.parameter.nip)}
+    );
   } else {
     return createCorsResponse({ error: "Aksi GET tidak dikenal", success: false });
   }

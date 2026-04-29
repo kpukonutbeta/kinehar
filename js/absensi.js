@@ -32,20 +32,154 @@ $(document).ready(function () {
             selectSession(targetId);
         }
     }
+
+    function loadASNInfo() {
+        try {
+            const storedData = localStorage.getItem('saved_asn_selection');
+            if (storedData) {
+                const asn = JSON.parse(storedData);
+                $('#textName').text(asn.nama);
+                $('#textNip').text(asn.nip);
+                
+                // Set initials for avatar
+                const initials = asn.nama.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                $('#avatarText').text(initials);
+            }
+        } catch (e) {
+            console.error('Error loading ASN info:', e);
+        }
+    }
+
+    function loadAttendanceStatus() {
+        const storedData = localStorage.getItem('saved_asn_selection');
+        if (!storedData) {
+            $('#page-loader').fadeOut();
+            return;
+        }
+        
+        const asn = JSON.parse(storedData);
+        const now = new Date();
+        const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const formattedDate = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
+
+        // 1. Try to load from Cache first (Instant UI)
+        const CACHE_KEY = `absensi_cache_${asn.nip}`;
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            try {
+                const cacheData = JSON.parse(cached);
+                // Only use cache if it's for today
+                if (cacheData.date === formattedDate) {
+                    updateBadgeStatus('pagi', cacheData.status.pagi);
+                    updateBadgeStatus('siang', cacheData.status.siang);
+                    updateBadgeStatus('sore', cacheData.status.sore);
+                    validateSaveButton();
+                }
+            } catch (e) {
+                console.error("Cache error:", e);
+            }
+        }
+
+        // 2. Fetch Latest from Server
+        isLoadingData = true;
+        $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+
+        const url = `https://proxy.arti-pos.com?action=absensi_status&date=${formattedDate}&nip=${asn.nip}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const status = data.data;
+                    updateBadgeStatus('pagi', status.pagi);
+                    updateBadgeStatus('siang', status.siang);
+                    updateBadgeStatus('sore', status.sore);
+                    
+                    // Save to Cache
+                    localStorage.setItem(CACHE_KEY, JSON.stringify({
+                        date: formattedDate,
+                        status: status
+                    }));
+
+                    // After loading, check if current selection is valid
+                    validateSaveButton();
+                }
+            })
+            .catch(err => console.error('Error loading status:', err))
+            .finally(() => {
+                isLoadingData = false;
+                $('#page-loader').fadeOut();
+            });
+    }
+
+    function validateSaveButton() {
+        if (!currentSelection) {
+            $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+            return;
+        }
+
+        const isAbsen = $(`#${currentSelection}`).find('span[id^="status-"]').attr('data-absen') === 'true';
+        if (isAbsen || isLoadingData) {
+            $('#btnSimpan').prop('disabled', true).addClass('opacity-50 cursor-not-allowed');
+        } else {
+            $('#btnSimpan').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
+        }
+    }
+
+    function updateBadgeStatus(sesi, time) {
+        const $badge = $(`#status-${sesi}`);
+        const $infoBtn = $(`#info-${sesi}`);
+        const $timeDisplay = $(`#time-${sesi}`);
+        const $card = $(`#session-${sesi}`);
+
+        if (time && time.trim() !== "" && time !== "undefined") {
+            $badge.text('Sudah Absen').attr('data-absen', 'true');
+            $infoBtn.removeClass('hidden');
+            $timeDisplay.text(time);
+            $card.addClass('cursor-not-allowed').css('pointer-events', 'auto');
+            
+            if (currentSelection !== `session-${sesi}`) {
+                $badge.removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500').addClass('bg-green-50 dark:bg-green-900/40 text-green-600');
+            }
+        } else {
+            $badge.text('Belum Absen').attr('data-absen', 'false');
+            $infoBtn.addClass('hidden');
+            $card.removeClass('cursor-not-allowed').css('pointer-events', 'auto');
+            
+            if (currentSelection !== `session-${sesi}`) {
+                $badge.addClass('bg-slate-100 dark:bg-slate-800 text-slate-500').removeClass('bg-green-50 dark:bg-green-900/40 text-green-600');
+            }
+        }
+    }
+
     function selectSession(sessionId) {
+        if (isLoadingData) return;
+
+        // Prevent selection if already recorded
+        const isAbsen = $(`#${sessionId}`).find('span[id^="status-"]').attr('data-absen') === 'true';
+        if (isAbsen) return;
+
         currentSelection = sessionId;
         manualOverride = true;
 
-        // Reset all cards to Blue (Unselected) state
+        // Reset all cards
         $('.attendance-card').removeClass('border-orange-500 ring-2 ring-orange-500/20 scale-[1.02] active')
             .addClass('border-gray-100 dark:border-slate-800 scale-100');
         
         $('.session-icon').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-500')
             .addClass('bg-blue-50 dark:bg-blue-900/20 text-blue-600');
 
-        // Reset all status badges
-        $('.attendance-card span[id^="status-"]').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600')
-            .addClass('bg-slate-100 dark:bg-slate-800 text-slate-500');
+        // Reset all status badges based on their 'data-absen' state
+        $('.attendance-card span[id^="status-"]').each(function() {
+            const isAbsen = $(this).attr('data-absen') === 'true';
+            $(this).removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+            
+            if (isAbsen) {
+                $(this).addClass('bg-green-50 dark:bg-green-900/40 text-green-600').removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500');
+            } else {
+                $(this).addClass('bg-slate-100 dark:bg-slate-800 text-slate-500').removeClass('bg-green-50 dark:bg-green-900/40 text-green-600');
+            }
+        });
 
         // Apply Orange (Selected) state to target
         const $target = $(`#${sessionId}`);
@@ -57,16 +191,29 @@ $(document).ready(function () {
 
         // Apply Orange to selected badge
         $target.find('span[id^="status-"]').addClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600')
-            .removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500');
+            .removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500 bg-green-50 dark:bg-green-900/40 text-green-600');
+        
+        validateSaveButton();
     }
 
-    // Initial call
+    // Initial calls
+    loadASNInfo();
     updateClock();
-    // Update every minute
+    loadAttendanceStatus();
+    
+    // Update clock every second
     setInterval(updateClock, 1000);
 
     // --- SESSION CARD CLICK (RADIO BUTTON BEHAVIOR) ---
-    $('.attendance-card').on('click', function () {
+    $('.attendance-card').on('click', function (e) {
+        if (isLoadingData) return;
+
+        // If clicking info button, don't trigger card selection
+        if ($(e.target).closest('button[id^="info-"]').length) return;
+
+        const isAbsen = $(this).find('span[id^="status-"]').attr('data-absen') === 'true';
+        if (isAbsen) return;
+
         manualOverride = true;
         selectSession(this.id);
     });
@@ -78,7 +225,8 @@ $(document).ready(function () {
     // Load initial state from localStorage
     const savedLocPref = localStorage.getItem(LOC_STORAGE_KEY);
     if (savedLocPref !== null) {
-        $('#recordLocation').prop('checked', savedLocPref === 'true');
+        const prefValue = savedLocPref === 'true';
+        $('#recordLocation').prop('checked', prefValue);
     }
 
     function detectLocation() {
@@ -129,8 +277,15 @@ $(document).ready(function () {
 
     // --- BUTTON HANDLER ---
     $('#btnSimpan').on('click', function () {
+        if (isLoadingData) return;
         if (!currentSelection) {
             showAlert('Pilih Sesi', 'Silakan pilih sesi absensi terlebih dahulu.', 'error');
+            return;
+        }
+
+        const isAbsen = $(`#${currentSelection}`).find('span[id^="status-"]').attr('data-absen') === 'true';
+        if (isAbsen) {
+            showAlert('Sudah Absen', 'Sesi ini sudah terisi.', 'warning');
             return;
         }
 
@@ -172,6 +327,7 @@ $(document).ready(function () {
 
         // Disable button & show loading
         $btn.prop('disabled', true).html('<span class="loader-spinner !w-5 !h-5 !border-2"></span> Menyimpan...');
+        isLoadingData = true;
 
         // POST to GAS via Proxy
         fetch("https://proxy.arti-pos.com", {
@@ -184,6 +340,8 @@ $(document).ready(function () {
             if (data.success) {
                 let locMsg = isRecording && userLocation ? `Lokasi Anda telah direkam.` : 'Presensi disimpan tanpa data lokasi.';
                 showAlert('Berhasil!', `Kehadiran ${formData.sesi.toUpperCase()} Anda telah berhasil dikirim. ${locMsg}`, 'success');
+                // Reload status to reflect changes
+                loadAttendanceStatus();
             } else {
                 showAlert('Gagal Simpan', data.error || 'Terjadi kesalahan saat menyimpan data.', 'error');
             }
@@ -194,6 +352,8 @@ $(document).ready(function () {
         })
         .finally(() => {
             $btn.prop('disabled', false).html(originalContent);
+            isLoadingData = false;
+            validateSaveButton();
         });
     });
 
@@ -207,10 +367,13 @@ $(document).ready(function () {
         $('#alertMessage').text(message);
 
         if (type === 'success') {
-            iconContainer.addClass('bg-green-50 text-green-500').removeClass('bg-red-50 text-red-500');
+            iconContainer.addClass('bg-green-50 text-green-500').removeClass('bg-red-50 text-red-500 bg-orange-50 text-orange-500');
             icon.text('check_circle');
+        } else if (type === 'warning') {
+            iconContainer.addClass('bg-orange-50 text-orange-500').removeClass('bg-green-50 text-green-500 bg-red-50 text-red-500');
+            icon.text('warning');
         } else {
-            iconContainer.addClass('bg-red-50 text-red-500').removeClass('bg-green-50 text-green-500');
+            iconContainer.addClass('bg-red-50 text-red-500').removeClass('bg-green-50 text-green-500 bg-orange-50 text-orange-500');
             icon.text('error');
         }
 

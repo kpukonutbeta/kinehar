@@ -157,6 +157,42 @@ function getSignatoryData() {
   };
 }
 
+function getAbsensiStatus(dateStr, nip) {
+  try {
+    const parentFolderId = "1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj";
+    const folderAbsensi = getOrCreateAbsensiFolder(dateStr, parentFolderId);
+    
+    // Check if daily spreadsheet exists
+    const dayName = getDayNameFromDateStr(dateStr);
+    const fileName = `${dateStr}, ${dayName}`;
+    const files = folderAbsensi.getFilesByName(fileName);
+    
+    if (!files.hasNext()) return { pagi: "", siang: "", sore: "" };
+    
+    const ss = SpreadsheetApp.openById(files.next().getId());
+    const sheet = ss.getSheets()[0];
+    const lastRow = sheet.getLastRow();
+    const startDataRow = 10;
+    
+    if (lastRow < startDataRow) return { pagi: "", siang: "", sore: "" };
+
+    const data = sheet.getRange(startDataRow, 2, lastRow - (startDataRow - 1), 5).getDisplayValues();
+    
+    for (let i = 0; i < data.length; i++) {
+      if (data[i][0].toString().includes(nip)) {
+        return {
+          pagi: data[i][2],
+          siang: data[i][3],
+          sore: data[i][4]
+        };
+      }
+    }
+  } catch (err) {
+    Logger.log("Error in getAbsensiStatus: " + err.toString());
+  }
+  return { pagi: "", siang: "", sore: "" };
+}
+
 // Helper Functions
 function getDayNameFromDateStr(dateStr) {
   const parts = dateStr.split(" ");
