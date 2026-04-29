@@ -73,6 +73,26 @@ $(document).ready(function () {
     }
   }
 
+  function getDaysUntilBirthday(nip) {
+    if (!nip || nip.length < 8) return 999; // Push invalid/unknown to bottom
+
+    const month = parseInt(nip.substring(4, 6)) - 1; // 0-indexed
+    const day = parseInt(nip.substring(6, 8));
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let nextBirthday = new Date(today.getFullYear(), month, day);
+
+    if (nextBirthday < today) {
+      nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+
+    const diffTime = nextBirthday - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
   // --- DROPDOWN LOGIC ---
 
   function renderDropdownItems(data) {
@@ -279,6 +299,13 @@ $(document).ready(function () {
         dropdownList.html('<div class="p-4 text-center">Data kosong</div>');
         return;
       }
+
+      // Sort data by upcoming birthday
+      data.sort((a, b) => {
+        const daysA = getDaysUntilBirthday(a.NIP);
+        const daysB = getDaysUntilBirthday(b.NIP);
+        return daysA - daysB;
+      });
 
       data.forEach(item => {
         pegawaiMap[item.NIP] = {
