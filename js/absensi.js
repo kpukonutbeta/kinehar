@@ -292,14 +292,13 @@ $(document).ready(function () {
         localStorage.setItem(LOC_STORAGE_KEY, isEnabled);
 
         if (!isEnabled) {
-            $('#textLocation').text('Perekaman lokasi dinonaktifkan');
-            $('#locationContainer').addClass('opacity-50');
+            $('#locationContainer').addClass('hidden');
             $('#locationMarker').removeClass('animate-bounce');
             userLocation = null;
             return;
         }
 
-        $('#locationContainer').removeClass('opacity-50');
+        $('#locationContainer').removeClass('hidden');
         $('#textLocation').text('Mencari lokasi...');
         
         if (navigator.geolocation) {
