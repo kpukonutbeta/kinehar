@@ -88,6 +88,9 @@ function saveKinerja(data) {
     sheet = ss.insertSheet(monthName);
     createSheetTemplate(sheet, data.date, data.nip, name, data.position);
   }
+  
+  // Call Daily Counter
+  logDailySubmission(data.date, data.nip);
 
   // Header "No" murni teks (tanpa rumus)
   sheet.getRange("A10").setValue("No");
@@ -237,59 +240,225 @@ function getWorkDayCounts(dateArg) {
   const month = dateSplit[1];
   const year = dateSplit[2];
   
-  const yearlyFolderName = `KINERJA HARIAN (${year})`;
+  const folderName = "COUNTER HARIAN";
   const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
-  const folders = parentFolder.getFoldersByName(yearlyFolderName);
+  const folders = parentFolder.getFoldersByName(folderName);
   
-  let resultsArray = [];
   if (!folders.hasNext()) {
     return {"item": {}, "nilai_ambang": hitungNilaiAmbang()};
   }
   
-  const yearlyFolder = folders.next();
-  const files = yearlyFolder.getFiles();
+  const counterFolder = folders.next();
+  const ss = getOrCreateCounterSS(month, year);
+  
+  const nipCounts = {};
+  if (ss) {
+    const sheet = ss.getSheets()[0];
+    const data = sheet.getDataRange().getValues();
+    
+    // Row 0 is header (NIP, 01, 02, ...)
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const nip = row[0].toString().trim();
+      if (!nip) continue;
+      
+      let workDayCount = 0;
+      // Columns 1 to end are daily counts
+      for (let j = 1; j < row.length; j++) {
+        if (row[j] > 0) {
+          workDayCount++; // Count unique days that have reports
+        }
+      }
+      nipCounts[nip] = workDayCount;
+    }
+  }
 
-  while (files.hasNext()) {
-    const file = files.next();
+  const resultsArray = [];
+  const asnList = getASNList();
+  asnList.forEach(asn => {
+    const nip = asn["NIP"].toString().trim();
+    const name = asn["Nama Lengkap"].trim();
+    const key = `${nip} - ${name}`;
+    resultsArray.push({
+      key: key,
+      value: nipCounts[nip] || 0
+    });
+  });
+
+  resultsArray.sort((a, b) => a.key.localeCompare(b.key));
+
+  const sortedResult = {};
+  resultsArray.forEach(item => {
+    sortedResult[item.key] = item.value;
+  });
+
+  return {"item": sortedResult, "nilai_ambang": hitungNilaiAmbang()};
+}
+
+function logDailySubmission(dateArg, nip) {
+  const dateSplit = dateArg.split(" ");
+  const day = parseInt(dateSplit[0]);
+  const month = dateSplit[1];
+  const year = dateSplit[2];
+  
+  const ss = getOrCreateCounterSS(month, year);
+  const sheet = ss.getSheets()[0];
+  const data = sheet.getDataRange().getValues();
+  const nips = data.map(row => row[0].toString().trim());
+  const nipStr = nip.toString().trim();
+  
+  let rowIndex = nips.indexOf(nipStr);
+  if (rowIndex === -1) {
+    // Add new row for NIP
+    sheet.appendRow([nipStr]);
+    rowIndex = nips.length; // because appendRow adds at the end
+  }
+  
+  // Day 1 is Column 2 (index 1), etc.
+  const colIndex = day + 1;
+  const currentVal = sheet.getRange(rowIndex + 1, colIndex).getValue() || 0;
+  sheet.getRange(rowIndex + 1, colIndex).setValue(parseInt(currentVal) + 1);
+}
+
+function syncKinerjaCounters(dateArg, nipFilter = null) {
+  const dateInput = (isValidIndoDate(dateArg)) ? dateArg : getTodayManual();
+  const dateSplit = dateInput.split(" ");
+  const month = dateSplit[1];
+  const year = dateSplit[2];
+  
+  const folderName = "COUNTER HARIAN";
+  const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+  let counterFolder;
+  const folders = parentFolder.getFoldersByName(folderName);
+  
+  if (folders.hasNext()) {
+    counterFolder = folders.next();
+  } else {
+    counterFolder = parentFolder.createFolder(folderName);
+  }
+
+  const fileName = `COUNTER (${month} ${year})`;
+  const files = counterFolder.getFilesByName(fileName);
+  
+  if (!nipFilter) {
+    // Sync all: delete current spreadsheet if exists to rebuild
+    if (files.hasNext()) {
+      counterFolder.removeFile(files.next());
+    }
+  } else {
+    // Sync specific NIP: reset their row values in existing spreadsheet
+    if (files.hasNext()) {
+      const ss = SpreadsheetApp.openById(files.next().getId());
+      const sheet = ss.getSheets()[0];
+      const data = sheet.getDataRange().getValues();
+      const nips = data.map(row => row[0].toString().trim());
+      const rowIndex = nips.indexOf(nipFilter.toString().trim());
+      if (rowIndex !== -1) {
+        // Clear columns 2 to 32 (days)
+        sheet.getRange(rowIndex + 1, 2, 1, 31).clearContent();
+      }
+    }
+  }
+
+  // Scan spreadsheets to populate
+  const yearlyFolderName = `KINERJA HARIAN (${year})`;
+  const yearlyFolders = parentFolder.getFoldersByName(yearlyFolderName);
+  if (!yearlyFolders.hasNext()) return "Folder tahun tidak ditemukan";
+  const yearlyFolder = yearlyFolders.next();
+  
+  const employeeFiles = yearlyFolder.getFiles();
+  while (employeeFiles.hasNext()) {
+    const file = employeeFiles.next();
     if (file.getMimeType() !== MimeType.GOOGLE_SHEETS) continue;
     
-    const fileName = file.getName();
+    const empFileName = file.getName();
+    const currentNip = empFileName.split(" - ")[0];
+    
+    if (nipFilter && currentNip !== nipFilter.toString().trim()) continue;
+    
     const ss = SpreadsheetApp.openById(file.getId());
     const sheet = ss.getSheetByName(month);
     
     if (sheet) {
       const startRow = 11;
       const lastRow = sheet.getLastRow();
-      let count = 0;
-      
       if (lastRow >= startRow) {
         const dateValues = sheet.getRange(startRow, 3, lastRow - startRow + 1, 1).getDisplayValues();
-        const uniqueDates = new Set();
+        const dailyCounts = {}; // day -> count
         
         dateValues.forEach(row => {
           const dateStr = row[0].trim();
-          if (dateStr !== "") uniqueDates.add(dateStr);
+          if (dateStr !== "") {
+            const dayPart = parseInt(dateStr.split("/")[0]);
+            dailyCounts[dayPart] = (dailyCounts[dayPart] || 0) + 1;
+          }
         });
-        count = uniqueDates.size;
+        
+        // Update the grid
+        for (const [day, count] of Object.entries(dailyCounts)) {
+          // We need a helper or direct update. Let's reuse logDailySubmission 
+          // but modified to set the actual count instead of incrementing if we want perfect sync.
+          // For simplicity in sync, I'll call logDailySubmission 'count' times.
+          // Better: Create a setDailySubmissionCount function
+          setDailySubmissionCount(month, year, currentNip, day, count);
+        }
       }
-      
-      resultsArray.push({
-        key: fileName, // fileName is already "NIP - Nama"
-        value: count
-      });
     }
   }
+  
+  return "Synchronization complete for " + (nipFilter ? "NIP " + nipFilter : "all employees") + " in " + month + " " + year;
+}
 
-  // --- LOGIKA SORT ASCENDING BERDASARKAN KEY ---
-  resultsArray.sort((a, b) => a.key.localeCompare(b.key));
+function setDailySubmissionCount(month, year, nip, day, count) {
+  const ss = getOrCreateCounterSS(month, year);
+  const sheet = ss.getSheets()[0];
+  
+  const data = sheet.getDataRange().getValues();
+  const nips = data.map(row => row[0].toString().trim());
+  const nipStr = nip.toString().trim();
+  
+  let rowIndex = nips.indexOf(nipStr);
+  if (rowIndex === -1) {
+    sheet.appendRow([nipStr]);
+    rowIndex = nips.length;
+  }
+  
+  sheet.getRange(rowIndex + 1, parseInt(day) + 1).setValue(count);
+}
 
-  // --- KONVERSI KEMBALI KE OBJEK ---
-  const sortedResult = {};
-  resultsArray.forEach(item => {
-    sortedResult[item.key] = item.value;
-  });
+function getOrCreateCounterSS(month, year) {
+  const folderName = "COUNTER HARIAN";
+  const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+  
+  let counterFolder;
+  const folders = parentFolder.getFoldersByName(folderName);
+  if (folders.hasNext()) {
+    counterFolder = folders.next();
+  } else {
+    counterFolder = parentFolder.createFolder(folderName);
+  }
 
-  const response_data = {"item": sortedResult, "nilai_ambang": hitungNilaiAmbang()}
-  Logger.log(JSON.stringify(response_data));
-  return response_data;
+  const fileName = `COUNTER (${month} ${year})`;
+  const files = counterFolder.getFilesByName(fileName);
+  
+  if (files.hasNext()) {
+    return SpreadsheetApp.openById(files.next().getId());
+  }
+
+  const ss = SpreadsheetApp.create(fileName);
+  const file = DriveApp.getFileById(ss.getId());
+  counterFolder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+  
+  // Create Header
+  const sheet = ss.getSheets()[0];
+  const header = ["NIP"];
+  for (let d = 1; d <= 31; d++) {
+    header.push(d < 10 ? "0" + d : d.toString());
+  }
+  sheet.appendRow(header);
+  sheet.setFrozenRows(1);
+  sheet.setFrozenColumns(1);
+  
+  return ss;
 }

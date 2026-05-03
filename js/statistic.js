@@ -226,4 +226,66 @@ $(document).ready(function () {
         const filtered = allEmployees.filter(emp => emp.name.toLowerCase().includes(searchTerm) || emp.nip.includes(searchTerm));
         renderList(filtered);
     });
+
+    // --- Sync Button Logic ---
+    $("#btnSync").on("click", function() {
+        if (!currentNip) return;
+        
+        const btn = $(this);
+        const icon = $("#syncIcon");
+        const text = $("#syncText");
+        
+        // Visual Loading
+        btn.prop("disabled", true).addClass("opacity-50 pointer-events-none");
+        icon.addClass("animate-spin");
+        text.text("Proses...");
+        
+        // We use today's month for sync
+        const now = new Date();
+        const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const dateStr = `01 ${bulanIndo[now.getMonth()]} ${now.getFullYear()}`;
+        
+        const syncUrl = `https://proxy.arti-pos.com/?action=kinerja_count_sync&date=${encodeURIComponent(dateStr)}&nip=${currentNip}`;
+        
+        fetch(syncUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Success! Now refresh the stats by calling the original fetch
+                    fetch(endpoint)
+                        .then(response => response.json())
+                        .then(freshData => {
+                            if (freshData.success) {
+                                localStorage.setItem(cacheKey, JSON.stringify(freshData));
+                                processAndRenderData(freshData);
+                            }
+                        });
+                } else {
+                    console.error("Sync failed:", data.error);
+                }
+            })
+            .catch(err => {
+                console.error("Sync error:", err);
+            })
+            .finally(() => {
+                btn.prop("disabled", false).removeClass("opacity-50 pointer-events-none");
+                icon.removeClass("animate-spin");
+                text.text("Sinkronkan");
+            });
+    });
 });
+
+// Define spin animation if not present
+$("<style>")
+    .prop("type", "text/css")
+    .html(`
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+    `)
+    .appendTo("head");

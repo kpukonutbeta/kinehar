@@ -13,6 +13,10 @@ function handleGet(e) {
     return createCorsResponse(
       {success: true, data: getWorkDayCounts(e.parameter.date)}
     );
+  } else if (action === "kinerja_count_sync") {
+    return createCorsResponse(
+      {success: true, data: syncKinerjaCounters(e.parameter.date, e.parameter.nip)}
+    );
   } else if (action === "absensi_status") {
     return createCorsResponse(
       {success: true, data: getAbsensiStatus(e.parameter.date, e.parameter.nip)}
