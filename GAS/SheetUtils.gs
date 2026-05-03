@@ -1,16 +1,29 @@
-function getOrCreateMonthlySpreadsheet(dateArg) {
-  const dateSplit = dateArg.split(" ");
-  const namaFile = `KINEHAR (${dateSplit[1]} ${dateSplit[2]})`;
-  const folder = DriveApp.getFolderById("1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj");
+const PARENT_FOLDER_ID = "1IYAicOD3DqTsTFQWFdUQyu_jFZchiegj";
 
-  const files = folder.getFilesByName(namaFile);
+function getOrCreateEmployeeSpreadsheet(dateArg, nip, name) {
+  const dateSplit = dateArg.split(" ");
+  const year = dateSplit[2];
+  const yearlyFolderName = `KINERJA HARIAN (${year})`;
+  const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+  
+  let yearlyFolder;
+  const folders = parentFolder.getFoldersByName(yearlyFolderName);
+  if (folders.hasNext()) {
+    yearlyFolder = folders.next();
+  } else {
+    yearlyFolder = parentFolder.createFolder(yearlyFolderName);
+  }
+
+  const employeeFileName = `${nip} - ${name}`;
+  const files = yearlyFolder.getFilesByName(employeeFileName);
   if (files.hasNext()) {
     return SpreadsheetApp.openById(files.next().getId());
   }
 
-  const spreadsheet = SpreadsheetApp.create(namaFile);
+  const spreadsheet = SpreadsheetApp.create(employeeFileName);
   const file = DriveApp.getFileById(spreadsheet.getId());
-  folder.addFile(file);
+  yearlyFolder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file); // Remove from root
   return spreadsheet;
 }
 
@@ -64,12 +77,15 @@ function getASNList() {
 }
 
 function saveKinerja(data) {
-  const ss = getOrCreateMonthlySpreadsheet(data.date);
-  let sheet = ss.getSheetByName(data.nip);
+  const name = data.name.trim();
+  const ss = getOrCreateEmployeeSpreadsheet(data.date, data.nip, name);
+  
+  const dateSplit = data.date.split(" ");
+  const monthName = dateSplit[1];
+  let sheet = ss.getSheetByName(monthName);
 
   if (!sheet) {
-    sheet = ss.insertSheet(data.nip);
-    const name = data.name.trim(); 
+    sheet = ss.insertSheet(monthName);
     createSheetTemplate(sheet, data.date, data.nip, name, data.position);
   }
 
@@ -162,11 +178,34 @@ function saveKinerja(data) {
 }
 
 function getKinerjaByDate(dateArg, nip) {
-  const ss = getOrCreateMonthlySpreadsheet(dateArg);
-  const sheet = ss.getSheetByName(nip);
+  const dateSplit = dateArg.split(" ");
+  const year = dateSplit[2];
+  const month = dateSplit[1];
+  
+  const yearlyFolderName = `KINERJA HARIAN (${year})`;
+  const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+  const folders = parentFolder.getFoldersByName(yearlyFolderName);
+  
+  if (!folders.hasNext()) return 'tidak menemukan folder tahun';
+  const yearlyFolder = folders.next();
+  
+  // Find employee file. We don't have the name here, so we look by NIP prefix
+  const files = yearlyFolder.getFiles();
+  let employeeSS = null;
+  while (files.hasNext()) {
+    const file = files.next();
+    if (file.getName().startsWith(nip + " - ")) {
+      employeeSS = SpreadsheetApp.openById(file.getId());
+      break;
+    }
+  }
+
+  if (!employeeSS) return 'tidak menemukan file pegawai';
+  
+  const sheet = employeeSS.getSheetByName(month);
 
   if (!sheet) {
-    return 'tidak menemukan sheet';
+    return 'tidak menemukan sheet bulan';
   }
 
   const data = sheet.getDataRange().getValues();
@@ -193,51 +232,56 @@ function getKinerjaByDate(dateArg, nip) {
 }
 
 function getWorkDayCounts(dateArg) {
-  const dateInput = (isValidIndoDate(dateArg)) ? dateArg: getTodayManual();
-  const ss = getOrCreateMonthlySpreadsheet(dateInput);
-  const sheets = ss.getSheets();
-  let resultsArray = []; 
+  const dateInput = (isValidIndoDate(dateArg)) ? dateArg : getTodayManual();
+  const dateSplit = dateInput.split(" ");
+  const month = dateSplit[1];
+  const year = dateSplit[2];
+  
+  const yearlyFolderName = `KINERJA HARIAN (${year})`;
+  const parentFolder = DriveApp.getFolderById(PARENT_FOLDER_ID);
+  const folders = parentFolder.getFoldersByName(yearlyFolderName);
+  
+  let resultsArray = [];
+  if (!folders.hasNext()) {
+    return {"item": {}, "nilai_ambang": hitungNilaiAmbang()};
+  }
+  
+  const yearlyFolder = folders.next();
+  const files = yearlyFolder.getFiles();
 
-  const ignoredSheets = ["Master", "Template", "Sheet1"];
-
-  sheets.forEach(sheet => {
-    const sheetName = sheet.getName(); 
-    if (ignoredSheets.includes(sheetName)) return;
-
-    // Ambil Nama dari Cell C5 dan bersihkan titik dua
-    let rawName = sheet.getRange("C5").getValue().toString();
-    let cleanName = rawName.replace(/:/g, "").trim();
-    const resultKey = sheetName + " - " + cleanName;
-
-    const startRow = 11;
-    const lastRow = sheet.getLastRow();
+  while (files.hasNext()) {
+    const file = files.next();
+    if (file.getMimeType() !== MimeType.GOOGLE_SHEETS) continue;
     
-    let count = 0;
-    if (lastRow >= startRow) {
-      const dateValues = sheet.getRange(startRow, 3, lastRow - startRow + 1, 1).getDisplayValues();
-      const uniqueDates = new Set();
+    const fileName = file.getName();
+    const ss = SpreadsheetApp.openById(file.getId());
+    const sheet = ss.getSheetByName(month);
+    
+    if (sheet) {
+      const startRow = 11;
+      const lastRow = sheet.getLastRow();
+      let count = 0;
       
-      dateValues.forEach(row => {
-        const dateStr = row[0].trim();
-        if (dateStr !== "") {
-          uniqueDates.add(dateStr);
-        }
+      if (lastRow >= startRow) {
+        const dateValues = sheet.getRange(startRow, 3, lastRow - startRow + 1, 1).getDisplayValues();
+        const uniqueDates = new Set();
+        
+        dateValues.forEach(row => {
+          const dateStr = row[0].trim();
+          if (dateStr !== "") uniqueDates.add(dateStr);
+        });
+        count = uniqueDates.size;
+      }
+      
+      resultsArray.push({
+        key: fileName, // fileName is already "NIP - Nama"
+        value: count
       });
-      count = uniqueDates.size;
     }
-
-    resultsArray.push({
-      key: resultKey,
-      value: count
-    });
-  });
+  }
 
   // --- LOGIKA SORT ASCENDING BERDASARKAN KEY ---
-  resultsArray.sort((a, b) => {
-    if (a.key < b.key) return -1; // Jika a lebih kecil, taruh di atas
-    if (a.key > b.key) return 1;  // Jika a lebih besar, taruh di bawah
-    return 0;
-  });
+  resultsArray.sort((a, b) => a.key.localeCompare(b.key));
 
   // --- KONVERSI KEMBALI KE OBJEK ---
   const sortedResult = {};
@@ -246,7 +290,6 @@ function getWorkDayCounts(dateArg) {
   });
 
   const response_data = {"item": sortedResult, "nilai_ambang": hitungNilaiAmbang()}
-
   Logger.log(JSON.stringify(response_data));
   return response_data;
 }
