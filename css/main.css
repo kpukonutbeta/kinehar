@@ -1,9 +1,29 @@
 :root {
-    --primary-color: #4285f4;
-    --hover-color: #3367d6;
-    --border-color: #e0e0e0;
-    --text-color: #333333;
-    --light-gray: #f5f5f5;
+    /* Metronic Design Tokens */
+    --primary: #0095E8;
+    --primary-light: #F1FAFF;
+    --success: #50CD89;
+    --success-light: #E8FFF3;
+    --danger: #F1416C;
+    --danger-light: #FFF5F8;
+    --warning: #FFC700;
+    --warning-light: #FFF8DD;
+    --info: #7239EA;
+    --info-light: #F8F5FF;
+    
+    --gray-100: #F5F8FA;
+    --gray-200: #EFF2F5;
+    --gray-300: #E1E3EA;
+    --gray-400: #B5B5C3;
+    --gray-500: #A1A5B7;
+    --gray-600: #7E8299;
+    --gray-700: #5E6278;
+    --gray-800: #3F4254;
+    --gray-900: #181C32;
+
+    --text-muted: var(--gray-500);
+    --border-color: var(--gray-200);
+    --card-bg: #FFFFFF;
 }
 
 * {
@@ -11,57 +31,63 @@
 }
 
 body {
-    background-color: var(--light-gray);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    color: var(--text-color);
+    background-color: var(--gray-100);
+    font-family: 'Inter', 'Poppins', -apple-system, sans-serif;
+    color: var(--gray-900);
     line-height: 1.5;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
 }
 
 .form-container {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-    padding: 20px;
-    margin: 15px auto;
+    background-color: var(--card-bg);
+    border-radius: 0.75rem;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
+    border: 1px solid var(--gray-200);
+    padding: 2rem;
+    margin: 1.5rem auto;
     max-width: 100%;
-    width: 100%;
 }
 
 .form-title {
-    color: var(--primary-color);
-    margin-bottom: 25px;
-    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 2rem;
+    font-weight: 700;
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    letter-spacing: -0.025em;
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 1.75rem;
 }
 
 label {
-    font-weight: 500;
-    color: var(--text-color);
-    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
     display: block;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .form-control,
 .select2-container--default .select2-selection--single {
-    height: 48px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 0.77rem;
-    transition: all 0.2s;
+    height: 3.25rem;
+    background-color: var(--gray-100);
+    border: 1px solid var(--gray-100);
+    color: var(--gray-700);
+    border-radius: 0.475rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.2s ease, background-color 0.2s ease;
 }
 
 .form-control:focus,
 .select2-container--default.select2-container--focus .select2-selection--single {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    background-color: var(--gray-200);
+    border-color: var(--gray-200);
+    color: var(--gray-900);
     outline: none;
 }
 
@@ -71,20 +97,24 @@ textarea.form-control {
 }
 
 .btn-submit {
-    background-color: var(--primary-color);
+    background-color: var(--primary);
     border: none;
-    padding: 14px 20px;
-    font-weight: 500;
+    padding: 0.825rem 1.5rem;
+    font-weight: 600;
     width: 100%;
-    margin-top: 15px;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    margin-top: 1rem;
+    border-radius: 0.475rem;
+    font-size: 1.05rem;
     color: white;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #0086d1;
 }
 
 .btn-submit:active {
-    background-color: var(--hover-color);
     transform: scale(0.98);
 }
 
