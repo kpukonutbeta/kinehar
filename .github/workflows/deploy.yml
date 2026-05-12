@@ -28,13 +28,29 @@ jobs:
       - name: Prepare Deployment
         run: |
           mkdir -p staging
-          # Salin file web utama (index.html, dll) ke folder staging
-          # Exclude folder source docs dan file sistem agar bersih
+          
+          # 1. Salin aplikasi utama ke root staging
           rsync -av . staging/ --exclude documentation --exclude .git --exclude .github --exclude staging --exclude node_modules
-          # Buat folder khusus dokumentasi di dalam staging
+          
+          # 2. Pastikan folder documentation ada di staging
           mkdir -p staging/documentation
-          # Salin hasil build VitePress ke folder tersebut
-          cp -R documentation/.vitepress/dist/* staging/documentation/
+          
+          # 3. Salin hasil build VitePress ke subfolder documentation
+          if [ -d "documentation/.vitepress/dist" ]; then
+            cp -R documentation/.vitepress/dist/* staging/documentation/
+            echo "VitePress build files copied successfully."
+          else
+            echo "Error: VitePress build directory not found!"
+            exit 1
+          fi
+
+          # 4. Tambahkan file .nojekyll (PENTING untuk GitHub Pages)
+          touch staging/.nojekyll
+          touch staging/documentation/.nojekyll
+
+          # 5. Debug: Lihat struktur akhir
+          echo "Final structure in staging:"
+          ls -R staging | head -n 20
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
