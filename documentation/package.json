@@ -1,0 +1,18 @@
+{
+  "name": "kejar-docs",
+  "version": "1.0.0",
+  "description": "Dokumentasi Aplikasi KEJAR KPU Konawe Utara",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.31",
+    "vue": "^3.3.4"
+  }
+}
