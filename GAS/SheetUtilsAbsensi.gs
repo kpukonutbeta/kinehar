@@ -59,6 +59,7 @@ function getOrCreateDailySpreadsheet(dateStr, folder) {
     return SpreadsheetApp.openById(files.next().getId());
   } else {
     const ss = SpreadsheetApp.create(fileName);
+    ss.setSpreadsheetLocale('id'); // Set locale to Indonesia
     const file = DriveApp.getFileById(ss.getId());
     folder.addFile(file);
     DriveApp.getRootFolder().removeFile(file); // Bersihkan dari root jika perlu

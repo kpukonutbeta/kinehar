@@ -16,15 +16,18 @@ function getOrCreateEmployeeSpreadsheet(dateArg, nip, name) {
 
   const employeeFileName = `${nip} - ${name}`;
   const files = yearlyFolder.getFilesByName(employeeFileName);
+  let ss;
   if (files.hasNext()) {
-    return SpreadsheetApp.openById(files.next().getId());
+    ss = SpreadsheetApp.openById(files.next().getId());
+  } else {
+    ss = SpreadsheetApp.create(employeeFileName);
+    const file = DriveApp.getFileById(ss.getId());
+    yearlyFolder.addFile(file);
+    DriveApp.getRootFolder().removeFile(file); // Remove from root
   }
-
-  const spreadsheet = SpreadsheetApp.create(employeeFileName);
-  const file = DriveApp.getFileById(spreadsheet.getId());
-  yearlyFolder.addFile(file);
-  DriveApp.getRootFolder().removeFile(file); // Remove from root
-  return spreadsheet;
+  
+  ss.setSpreadsheetLocale('id'); // Ensure locale is always Indonesia (dd/mm/yyyy)
+  return ss;
 }
 
 function createSheetTemplate(sheet, dateArg, nip, name, position) {
@@ -152,6 +155,9 @@ function saveKinerja(data) {
   // Ambil range baris baru (Kolom B sampai E)
   const dataRange = sheet.getRange(targetRow, 2, 1, rowData.length);
   dataRange.setValues([rowData]);
+  
+  // Pastikan format kolom tanggal (Kolom C) adalah dd/MM/yyyy
+  sheet.getRange(targetRow, 3).setNumberFormat("dd/MM/yyyy");
 
   // --- PENYESUAIAN FORMAT (BORDER & WRAP) ---
   
@@ -383,14 +389,19 @@ function syncKinerjaCounters(dateArg, nipFilter = null) {
       const startRow = 11;
       const lastRow = sheet.getLastRow();
       if (lastRow >= startRow) {
-        const dateValues = sheet.getRange(startRow, 3, lastRow - startRow + 1, 1).getDisplayValues();
+        const dateValues = sheet.getRange(startRow, 3, lastRow - startRow + 1, 1).getValues();
         const dailyCounts = {}; // day -> count
         
         dateValues.forEach(row => {
-          const dateStr = row[0].trim();
-          if (dateStr !== "") {
-            const dayPart = parseInt(dateStr.split("/")[0]);
+          let dateVal = row[0];
+          if (dateVal instanceof Date) {
+            const dayPart = dateVal.getDate();
             dailyCounts[dayPart] = (dailyCounts[dayPart] || 0) + 1;
+          } else if (typeof dateVal === "string" && dateVal.trim() !== "") {
+            const dayPart = parseInt(dateVal.split("/")[0]);
+            if (!isNaN(dayPart)) {
+              dailyCounts[dayPart] = (dailyCounts[dayPart] || 0) + 1;
+            }
           }
         });
         
