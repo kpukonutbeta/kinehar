@@ -1,7 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "Kinehar Docs",
+  base: '/kinehar/documentation/',
+  title: "KEJAR Docs",
   description: "Dokumentasi Aplikasi Kinerja Harian KPU Konawe Utara",
   lang: 'id-ID',
   themeConfig: {
@@ -16,7 +17,7 @@ export default defineConfig({
       {
         text: 'Pengenalan',
         items: [
-          { text: 'Apa itu Kinehar?', link: '/guide/getting-started' },
+          { text: 'Apa itu KEJAR?', link: '/guide/getting-started' },
           { text: 'Cara Penggunaan', link: '/guide/usage' },
         ]
       },
