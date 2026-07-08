@@ -27,12 +27,26 @@ function saveAbsensi(data) {
 
   if (targetRow !== -1) {
     let colIndex = -1;
+    let valStr = timeStr;
+
+    const isSpecialSesi = ["cuti", "izin", "sakit", "dinas_luar", "tugas_belajar", "tugas_luar"].includes(sesi);
+    if (isSpecialSesi || data.clearSpecial === true || data.clearSpecial === "true") {
+      // Clear columns G to L (7 to 12) to ensure at most one special status
+      sheet.getRange(targetRow, 7, 1, 6).setValues([["", "", "", "", "", ""]]);
+    }
+
     if (sesi === "pagi") colIndex = 4; // Kolom D
     else if (sesi === "siang") colIndex = 5; // Kolom E
     else if (sesi === "sore") colIndex = 6; // Kolom F
+    else if (sesi === "cuti") { colIndex = 7; valStr = "V"; } // Kolom G
+    else if (sesi === "izin") { colIndex = 8; valStr = "V"; } // Kolom H
+    else if (sesi === "sakit") { colIndex = 9; valStr = "V"; } // Kolom I
+    else if (sesi === "dinas_luar") { colIndex = 10; valStr = "V"; } // Kolom J
+    else if (sesi === "tugas_belajar") { colIndex = 11; valStr = "V"; } // Kolom K (TB)
+    else if (sesi === "tugas_luar") { colIndex = 12; valStr = "V"; } // Kolom L (TL)
 
     if (colIndex !== -1) {
-      sheet.getRange(targetRow, colIndex).setValue(timeStr).setHorizontalAlignment("center");
+      sheet.getRange(targetRow, colIndex).setValue(valStr).setHorizontalAlignment("center");
     }
   }
 }
@@ -168,30 +182,36 @@ function getAbsensiStatus(dateStr, nip) {
     const fileName = `${dateStr}, ${dayName}`;
     const files = folderAbsensi.getFilesByName(fileName);
     
-    if (!files.hasNext()) return { pagi: "", siang: "", sore: "" };
+    if (!files.hasNext()) return { pagi: "", siang: "", sore: "", cuti: "", izin: "", sakit: "", dinas_luar: "", tugas_belajar: "", tugas_luar: "" };
     
     const ss = SpreadsheetApp.openById(files.next().getId());
     const sheet = ss.getSheets()[0];
     const lastRow = sheet.getLastRow();
     const startDataRow = 10;
     
-    if (lastRow < startDataRow) return { pagi: "", siang: "", sore: "" };
+    if (lastRow < startDataRow) return { pagi: "", siang: "", sore: "", cuti: "", izin: "", sakit: "", dinas_luar: "", tugas_belajar: "", tugas_luar: "" };
 
-    const data = sheet.getRange(startDataRow, 2, lastRow - (startDataRow - 1), 5).getDisplayValues();
+    const data = sheet.getRange(startDataRow, 2, lastRow - (startDataRow - 1), 12).getDisplayValues();
     
     for (let i = 0; i < data.length; i++) {
       if (data[i][0].toString().includes(nip)) {
         return {
           pagi: data[i][2],
           siang: data[i][3],
-          sore: data[i][4]
+          sore: data[i][4],
+          cuti: data[i][5],
+          izin: data[i][6],
+          sakit: data[i][7],
+          dinas_luar: data[i][8],
+          tugas_belajar: data[i][9], // Index 9 is Column K (TB)
+          tugas_luar: data[i][10] // Index 10 is Column L (TL)
         };
       }
     }
   } catch (err) {
     Logger.log("Error in getAbsensiStatus: " + err.toString());
   }
-  return { pagi: "", siang: "", sore: "" };
+  return { pagi: "", siang: "", sore: "", cuti: "", izin: "", sakit: "", dinas_luar: "", tugas_belajar: "", tugas_luar: "" };
 }
 
 // Helper Functions

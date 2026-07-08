@@ -3,6 +3,7 @@ $(document).ready(function () {
     let manualOverride = false;
     let isLoadingData = false; // For general block
     let isSubmitting = false; // For saving process
+    let activeSpecialStatus = null; // Storing today's active special status
 
     function updateClock() {
         const now = new Date();
@@ -21,6 +22,27 @@ $(document).ready(function () {
     }
 
     function autoSelectSession(now) {
+        // If a special status is already filled, do not auto select anything
+        let hasSpecial = false;
+        const specialSessions = ['session-cuti', 'session-izin', 'session-sakit', 'session-dinas_luar', 'session-tugas_belajar', 'session-tugas_luar'];
+        for (const id of specialSessions) {
+            const isAbsen = $(`#${id}`).find('span[id^="status-"]').attr('data-absen') === 'true';
+            if (isAbsen) {
+                hasSpecial = true;
+                break;
+            }
+        }
+        if (hasSpecial) {
+            currentSelection = null;
+            $('.attendance-card').removeClass('border-orange-500 ring-2 ring-orange-500/20 scale-[1.02] active')
+                .addClass('border-gray-100 dark:border-slate-800 scale-100');
+            $('.session-icon').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-500')
+                .addClass('bg-blue-50 dark:bg-blue-900/20 text-blue-600');
+            validateSaveButton();
+            updateLocationVisibility();
+            return;
+        }
+
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const timeValue = hours * 100 + minutes;
@@ -68,6 +90,7 @@ $(document).ready(function () {
                     }
                 });
                 validateSaveButton();
+                updateLocationVisibility();
             }
         }
     }
@@ -101,6 +124,33 @@ $(document).ready(function () {
         const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const formattedDate = `${now.getDate()} ${monthsIndo[now.getMonth()]} ${now.getFullYear()}`;
 
+        function handleStatusDisplay(status) {
+            updateBadgeStatus('pagi', status.pagi);
+            updateBadgeStatus('siang', status.siang);
+            updateBadgeStatus('sore', status.sore);
+            updateSpecialBadgeStatus('cuti', status.cuti);
+            updateSpecialBadgeStatus('izin', status.izin);
+            updateSpecialBadgeStatus('sakit', status.sakit);
+            updateSpecialBadgeStatus('dinas_luar', status.dinas_luar);
+            updateSpecialBadgeStatus('tugas_belajar', status.tugas_belajar);
+            updateSpecialBadgeStatus('tugas_luar', status.tugas_luar);
+
+            let activeStatusText = "";
+            activeSpecialStatus = null; // reset
+            if (status.cuti && status.cuti.trim() !== "") { activeStatusText = "Cuti"; activeSpecialStatus = "cuti"; }
+            else if (status.izin && status.izin.trim() !== "") { activeStatusText = "Izin"; activeSpecialStatus = "izin"; }
+            else if (status.sakit && status.sakit.trim() !== "") { activeStatusText = "Sakit"; activeSpecialStatus = "sakit"; }
+            else if (status.dinas_luar && status.dinas_luar.trim() !== "") { activeStatusText = "Dinas Luar"; activeSpecialStatus = "dinas_luar"; }
+            else if (status.tugas_belajar && status.tugas_belajar.trim() !== "") { activeStatusText = "Tugas Belajar"; activeSpecialStatus = "tugas_belajar"; }
+            else if (status.tugas_luar && status.tugas_luar.trim() !== "") { activeStatusText = "Tugas Luar"; activeSpecialStatus = "tugas_luar"; }
+
+            if (activeStatusText) {
+                switchTab('tidak-hadir');
+            } else {
+                switchTab('hadir');
+            }
+        }
+
         // 1. Try to load from Cache first (Instant UI)
         const CACHE_KEY = `absensi_cache_${asn.nip}`;
         const cached = localStorage.getItem(CACHE_KEY);
@@ -109,9 +159,7 @@ $(document).ready(function () {
                 const cacheData = JSON.parse(cached);
                 // Only use cache if it's for today
                 if (cacheData.date === formattedDate) {
-                    updateBadgeStatus('pagi', cacheData.status.pagi);
-                    updateBadgeStatus('siang', cacheData.status.siang);
-                    updateBadgeStatus('sore', cacheData.status.sore);
+                    handleStatusDisplay(cacheData.status);
                     validateSaveButton();
                     autoSelectSession(new Date()); // Auto select instantly from cache
                 }
@@ -129,9 +177,7 @@ $(document).ready(function () {
             .then(data => {
                 if (data.success) {
                     const status = data.data;
-                    updateBadgeStatus('pagi', status.pagi);
-                    updateBadgeStatus('siang', status.siang);
-                    updateBadgeStatus('sore', status.sore);
+                    handleStatusDisplay(status);
                     
                     // Save to Cache
                     localStorage.setItem(CACHE_KEY, JSON.stringify({
@@ -159,7 +205,8 @@ $(document).ready(function () {
         if (!currentSelection) {
             $('#btnSimpan').prop('disabled', true)
                 .addClass('bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed')
-                .removeClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200');
+                .removeClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200')
+                .html('<span class="material-symbols-outlined text-xl">check_circle</span> Simpan Kehadiran');
             return;
         }
 
@@ -173,6 +220,52 @@ $(document).ready(function () {
             $('#btnSimpan').prop('disabled', false)
                 .removeClass('bg-slate-200 dark:bg-slate-700 text-slate-400 cursor-not-allowed')
                 .addClass('bg-blue-700 hover:bg-blue-800 text-white shadow-lg shadow-blue-200');
+        }
+
+        if (!isSubmitting) {
+            let btnText = "Simpan Kehadiran";
+            const sesiName = currentSelection.split('-')[1];
+            if (sesiName === "pagi") btnText = "Simpan Absen Pagi";
+            else if (sesiName === "siang") btnText = "Simpan Absen Siang";
+            else if (sesiName === "sore") btnText = "Simpan Absen Sore";
+            else if (sesiName === "cuti") btnText = "Simpan Status Cuti";
+            else if (sesiName === "izin") btnText = "Simpan Status Izin";
+            else if (sesiName === "sakit") btnText = "Simpan Status Sakit";
+            else if (sesiName === "dinas_luar") btnText = "Simpan Dinas Luar";
+            else if (sesiName === "tugas_belajar") btnText = "Simpan Tugas Belajar";
+            else if (sesiName === "tugas_luar") btnText = "Simpan Tugas Luar";
+            
+            $('#btnSimpan').html(`<span class="material-symbols-outlined text-xl">check_circle</span> ${btnText}`);
+        }
+    }
+
+    function updateSpecialBadgeStatus(sesi, hasStatus) {
+        const $badge = $(`#status-${sesi}`);
+        const $card = $(`#session-${sesi}`);
+
+        if (hasStatus && hasStatus.trim() !== "" && hasStatus !== "undefined") {
+            $badge.text('Aktif').attr('data-absen', 'true');
+            $card.addClass('cursor-not-allowed').css('pointer-events', 'auto');
+            
+            // Apply Green color styling directly
+            $badge.addClass('bg-green-50 dark:bg-green-900/40 text-green-600')
+                  .removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500 bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+            $card.removeClass('border-orange-500 ring-2 ring-orange-500/20 scale-[1.02] active')
+                 .addClass('border-gray-100 dark:border-slate-800 scale-100');
+            $card.find('.session-icon').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-500')
+                 .addClass('bg-blue-50 dark:bg-blue-900/20 text-blue-600');
+
+            if (currentSelection === `session-${sesi}`) {
+                currentSelection = null;
+            }
+        } else {
+            $badge.text('').attr('data-absen', 'false');
+            $card.removeClass('cursor-not-allowed').css('pointer-events', 'auto');
+            
+            if (currentSelection !== `session-${sesi}`) {
+                $badge.addClass('bg-slate-100 dark:bg-slate-800 text-slate-500')
+                      .removeClass('bg-green-50 dark:bg-green-900/40 text-green-600 bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+            }
         }
     }
 
@@ -252,6 +345,7 @@ $(document).ready(function () {
             .removeClass('bg-slate-100 dark:bg-slate-800 text-slate-500 bg-green-50 dark:bg-green-900/40 text-green-600');
         
         validateSaveButton();
+        updateLocationVisibility();
     }
 
     // Initial calls
@@ -291,14 +385,15 @@ $(document).ready(function () {
         const isEnabled = $('#recordLocation').is(':checked');
         localStorage.setItem(LOC_STORAGE_KEY, isEnabled);
 
+        updateLocationVisibility();
+
         if (!isEnabled) {
-            $('#locationContainer').addClass('hidden');
             $('#locationMarker').removeClass('animate-bounce');
             userLocation = null;
             return;
         }
 
-        $('#locationContainer').removeClass('hidden');
+        updateLocationVisibility(); // Ensure map gets shown/hidden appropriately
         $('#textLocation').text('Mencari lokasi...');
         
         if (navigator.geolocation) {
@@ -342,16 +437,40 @@ $(document).ready(function () {
 
         const isAbsen = $(`#${currentSelection}`).find('span[id^="status-"]').attr('data-absen') === 'true';
         if (isAbsen) {
-            showAlert('Sudah Absen', 'Sesi ini sudah terisi.', 'warning');
+            showAlert('Sudah Absen / Aktif', 'Status ini sudah terisi.', 'warning');
             return;
         }
 
+        const sesiName = currentSelection.split('-')[1];
         const isRecording = $('#recordLocation').is(':checked');
-        if (isRecording && !userLocation) {
+        const bypassLocation = ["cuti", "izin", "sakit", "tugas_belajar"].includes(sesiName);
+
+        if (isRecording && !userLocation && !bypassLocation) {
             showAlert('Lokasi Belum Tersedia', 'Tunggu sebentar sampai lokasi terdeteksi atau nonaktifkan record lokasi.', 'error');
             return;
         }
 
+        const isRegularSesi = ["pagi", "siang", "sore"].includes(sesiName);
+        if (isRegularSesi && activeSpecialStatus) {
+            const statusLabel = {
+                cuti: "Cuti",
+                izin: "Izin",
+                sakit: "Sakit",
+                dinas_luar: "Dinas Luar",
+                tugas_belajar: "Tugas Belajar",
+                tugas_luar: "Tugas Luar"
+            }[activeSpecialStatus] || activeSpecialStatus;
+
+            showConfirm(`Hari ini Anda tercatat sedang ${statusLabel}. Apakah Anda ingin membatalkan status tersebut dan melakukan absensi?`, function() {
+                submitAttendance(sesiName, isRecording, bypassLocation, true);
+            });
+            return;
+        }
+
+        submitAttendance(sesiName, isRecording, bypassLocation, false);
+    });
+
+    function submitAttendance(sesiName, isRecording, bypassLocation, clearSpecial) {
         // Get stored ASN data
         let savedSelection = null;
         try {
@@ -364,7 +483,7 @@ $(document).ready(function () {
             return;
         }
 
-        const $btn = $(this);
+        const $btn = $('#btnSimpan');
         const originalContent = $btn.html();
 
         // Prepare Data
@@ -375,11 +494,12 @@ $(document).ready(function () {
         const formData = {
             action: "absensi",
             date: formattedDate,
-            sesi: currentSelection.split('-')[1], // "pagi", "siang", "sore"
+            sesi: sesiName, // "pagi", "siang", "sore", "cuti", "izin", "sakit", "dinas_luar", "tugas_belajar", "tugas_luar"
             nip: savedSelection.nip,
             name: savedSelection.nama,
             position: savedSelection.jabatan,
-            location: isRecording && userLocation ? `${userLocation.lat}, ${userLocation.lng}` : "Tanpa Lokasi"
+            location: isRecording && userLocation && !bypassLocation ? `${userLocation.lat}, ${userLocation.lng}` : "Tanpa Lokasi",
+            clearSpecial: clearSpecial
         };
 
         // Disable button & show loading
@@ -396,7 +516,7 @@ $(document).ready(function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                let locMsg = isRecording && userLocation ? `Lokasi Anda telah direkam.` : 'Presensi disimpan tanpa data lokasi.';
+                let locMsg = isRecording && userLocation && !bypassLocation ? `Lokasi Anda telah direkam.` : 'Presensi disimpan tanpa data lokasi.';
                 showAlert('Berhasil!', `Kehadiran ${formData.sesi.toUpperCase()} Anda telah berhasil dikirim. ${locMsg}`, 'success');
                 // Reload status to reflect changes
                 loadAttendanceStatus();
@@ -406,14 +526,14 @@ $(document).ready(function () {
         })
         .catch(err => {
             console.error('Fetch error:', err);
-            showAlert('Error', 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.', 'error');
+            showAlert('Koneksi Gagal', 'Gagal menghubungi server. Periksa koneksi internet Anda.', 'error');
         })
         .finally(() => {
             $btn.prop('disabled', false).html(originalContent);
             isSubmitting = false;
             validateSaveButton();
         });
-    });
+    }
 
     // --- MODAL LOGIC ---
     function showAlert(title, message, type = 'success') {
@@ -452,4 +572,117 @@ $(document).ready(function () {
 
     $('#closeAlert').on('click', closeAlert);
     $('#alertModal').on('click', function (e) { if (e.target === this) closeAlert(); });
+
+    // --- TAB SWITCHER LOGIC ---
+    function updateLocationVisibility() {
+        const isEnabled = $('#recordLocation').is(':checked');
+        const activeTab = $('#container-hadir').is(':visible') ? 'hadir' : 'tidak-hadir';
+        const sesiName = currentSelection ? currentSelection.split('-')[1] : null;
+        const bypassLocation = ["cuti", "izin", "sakit", "tugas_belajar"].includes(sesiName);
+        
+        const showToggle = (activeTab === 'hadir' || (currentSelection && !bypassLocation));
+        const showMap = (showToggle && isEnabled);
+
+        if (showToggle) {
+            $('#recordLocation').closest('label').parent().removeClass('hidden');
+        } else {
+            $('#recordLocation').closest('label').parent().addClass('hidden');
+        }
+
+        if (showMap) {
+            $('#locationContainer').removeClass('hidden');
+        } else {
+            $('#locationContainer').addClass('hidden');
+        }
+    }
+
+    function switchTab(tabId) {
+        if (tabId === 'hadir') {
+            $('#tab-hadir').addClass('bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-white').removeClass('text-slate-500 dark:text-slate-400 bg-transparent');
+            $('#tab-tidak-hadir').removeClass('bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-white').addClass('text-slate-500 dark:text-slate-400 bg-transparent');
+            $('#container-hadir').removeClass('hidden');
+            $('#container-tidak-hadir').addClass('hidden').removeClass('grid');
+            
+            // Clear selection if it's a special session
+            if (currentSelection && !['session-pagi', 'session-siang', 'session-sore'].includes(currentSelection)) {
+                currentSelection = null;
+                $('.attendance-card').removeClass('border-orange-500 ring-2 ring-orange-500/20 scale-[1.02] active')
+                    .addClass('border-gray-100 dark:border-slate-800 scale-100');
+                $('.session-icon').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-500')
+                    .addClass('bg-blue-50 dark:bg-blue-900/20 text-blue-600');
+                $('.attendance-card span[id^="status-"]').each(function() {
+                    const isAbsen = $(this).attr('data-absen') === 'true';
+                    if (isAbsen) {
+                        $(this).addClass('bg-green-50 dark:bg-green-900/40 text-green-600').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+                    } else {
+                        $(this).addClass('bg-slate-100 dark:bg-slate-800 text-slate-500').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+                    }
+                });
+            }
+            autoSelectSession(new Date());
+        } else {
+            $('#tab-tidak-hadir').addClass('bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-white').removeClass('text-slate-500 dark:text-slate-400 bg-transparent');
+            $('#tab-hadir').removeClass('bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-white').addClass('text-slate-500 dark:text-slate-400 bg-transparent');
+            $('#container-tidak-hadir').removeClass('hidden').addClass('grid');
+            $('#container-hadir').addClass('hidden');
+            
+            // Clear selection if it's a daily session (Pagi, Siang, Sore)
+            if (currentSelection && ['session-pagi', 'session-siang', 'session-sore'].includes(currentSelection)) {
+                currentSelection = null;
+                $('.attendance-card').removeClass('border-orange-500 ring-2 ring-orange-500/20 scale-[1.02] active')
+                    .addClass('border-gray-100 dark:border-slate-800 scale-100');
+                $('.session-icon').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-500')
+                    .addClass('bg-blue-50 dark:bg-blue-900/20 text-blue-600');
+                $('.attendance-card span[id^="status-"]').each(function() {
+                    const isAbsen = $(this).attr('data-absen') === 'true';
+                    if (isAbsen) {
+                        $(this).addClass('bg-green-50 dark:bg-green-900/40 text-green-600').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+                    } else {
+                        $(this).addClass('bg-slate-100 dark:bg-slate-800 text-slate-500').removeClass('bg-orange-50 dark:bg-orange-900/40 text-orange-600');
+                    }
+                });
+            }
+            validateSaveButton();
+        }
+        updateLocationVisibility();
+    }
+
+    $('#tab-hadir').on('click', function() {
+        switchTab('hadir');
+    });
+
+    $('#tab-tidak-hadir').on('click', function() {
+        switchTab('tidak-hadir');
+    });
+
+    // --- CONFIRMATION DIALOG LOGIC ---
+    let confirmCallback = null;
+
+    function showConfirm(message, callback) {
+        $('#confirmMessage').text(message);
+        confirmCallback = callback;
+        
+        const modal = $('#confirmModal');
+        modal.removeClass('hidden');
+        setTimeout(() => {
+            modal.removeClass('opacity-0').find('> div').removeClass('scale-95').addClass('scale-100');
+        }, 10);
+    }
+
+    function closeConfirm() {
+        const modal = $('#confirmModal');
+        modal.find('> div').addClass('scale-95').removeClass('scale-100');
+        modal.addClass('opacity-0');
+        setTimeout(() => {
+            modal.addClass('hidden');
+        }, 300);
+        confirmCallback = null;
+    }
+
+    $('#cancelConfirm').on('click', closeConfirm);
+    $('#okConfirm').on('click', function() {
+        if (confirmCallback) confirmCallback();
+        closeConfirm();
+    });
+    $('#confirmModal').on('click', function (e) { if (e.target === this) closeConfirm(); });
 });

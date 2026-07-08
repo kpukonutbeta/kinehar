@@ -96,8 +96,20 @@
                     </div>
                 </div>
 
-                <!-- Attendance Sessions List -->
-                <div class="flex flex-col gap-3">
+                <!-- Tab Switcher -->
+                <div class="flex p-1 bg-gray-100 dark:bg-slate-800/80 rounded-2xl mb-6 mt-4 gap-1">
+                    <button type="button" id="tab-hadir" class="flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-white border-0 cursor-pointer">
+                        <span class="material-symbols-outlined text-base">fingerprint</span>
+                        Hadir Kantor
+                    </button>
+                    <button type="button" id="tab-tidak-hadir" class="flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 border-0 bg-transparent cursor-pointer">
+                        <span class="material-symbols-outlined text-base">event_busy</span>
+                        Keterangan Khusus
+                    </button>
+                </div>
+
+                <!-- Container: Hadir Kantor -->
+                <div id="container-hadir" class="flex flex-col gap-3">
                     <!-- Absen Pagi -->
                     <div id="session-pagi"
                         class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
@@ -108,13 +120,12 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="font-bold text-sm text-slate-800 dark:text-white">Absen Pagi</span>
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">06:00 -
-                                    08:30</span>
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">06:00 - 08:30</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button id="info-pagi"
-                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group">
+                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group border-0 bg-transparent cursor-pointer">
                                 <span class="material-symbols-outlined text-lg">info</span>
                                 <!-- Tooltip Bubble -->
                                 <div
@@ -143,13 +154,12 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="font-bold text-sm text-slate-800 dark:text-white">Absen Siang</span>
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">08:30 -
-                                    16:00</span>
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">08:30 - 16:00</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button id="info-siang"
-                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group">
+                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group border-0 bg-transparent cursor-pointer">
                                 <span class="material-symbols-outlined text-lg">info</span>
                                 <!-- Tooltip Bubble -->
                                 <div
@@ -178,13 +188,12 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="font-bold text-sm text-slate-800 dark:text-white">Absen Sore</span>
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">16:00 -
-                                    23:59</span>
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">16:00 - 23:59</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button id="info-sore"
-                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group">
+                                class="hidden text-slate-400 hover:text-blue-500 transition-colors relative group border-0 bg-transparent cursor-pointer">
                                 <span class="material-symbols-outlined text-lg">info</span>
                                 <!-- Tooltip Bubble -->
                                 <div
@@ -202,6 +211,100 @@
                             </span>
                         </div>
                     </div>
+                </div>
+
+                <!-- Container: Keterangan Khusus -->
+                <div id="container-tidak-hadir" class="hidden grid grid-cols-2 gap-3 mb-6">
+                    <!-- Cuti -->
+                    <div id="session-cuti"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">event_busy</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Cuti</span>
+                                <span id="status-cuti" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Izin -->
+                    <div id="session-izin"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">description</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Izin</span>
+                                <span id="status-izin" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sakit -->
+                    <div id="session-sakit"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">sick</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Sakit</span>
+                                <span id="status-sakit" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dinas Luar -->
+                    <div id="session-dinas_luar"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">business_center</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Dinas Luar</span>
+                                <span id="status-dinas_luar" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tugas Belajar -->
+                    <div id="session-tugas_belajar"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">school</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Tugas Belajar</span>
+                                <span id="status-tugas_belajar" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tugas Luar -->
+                    <div id="session-tugas_luar"
+                        class="attendance-card bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 dark:border-slate-800 flex items-center justify-between transition-all cursor-pointer group">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="session-icon w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-2xl">explore</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm text-slate-800 dark:text-white">Tugas Luar</span>
+                                <span id="status-tugas_luar" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" data-absen="false"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
                 <!-- Location Recording Toggle -->
@@ -304,6 +407,29 @@
                 class="w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all">
                 Selesai
             </button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="bg-white dark:bg-[#1a2133] w-full max-w-sm mx-4 rounded-[2rem] p-8 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col items-center text-center">
+            <div id="confirmIconContainer" class="w-20 h-20 bg-orange-50 dark:bg-orange-950/20 text-orange-500 rounded-full flex items-center justify-center mb-6">
+                <span class="material-symbols-outlined text-5xl">warning</span>
+            </div>
+            <h3 id="confirmTitle" class="text-xl font-bold text-slate-800 dark:text-white mb-2">Konfirmasi</h3>
+            <p id="confirmMessage" class="text-sm text-slate-500 dark:text-slate-400 mb-8 leading-relaxed"></p>
+            <div class="flex gap-3 w-full">
+                <button id="cancelConfirm"
+                    class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-bold active:scale-[0.98] transition-all border-0 cursor-pointer">
+                    Batal
+                </button>
+                <button id="okConfirm"
+                    class="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all border-0 cursor-pointer">
+                    Ya, Batalkan
+                </button>
+            </div>
         </div>
     </div>
 
