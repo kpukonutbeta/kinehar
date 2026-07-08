@@ -467,10 +467,16 @@ $(document).ready(function () {
             return;
         }
 
+        // If it is a special status session, open the Keterangan Detail modal
+        if (!isRegularSesi) {
+            showKeteranganDetailModal(sesiName, isRecording, bypassLocation);
+            return;
+        }
+
         submitAttendance(sesiName, isRecording, bypassLocation, false);
     });
 
-    function submitAttendance(sesiName, isRecording, bypassLocation, clearSpecial) {
+    function submitAttendance(sesiName, isRecording, bypassLocation, clearSpecial, keterangan = "", jenisCuti = "", dates = "") {
         // Get stored ASN data
         let savedSelection = null;
         try {
@@ -499,7 +505,10 @@ $(document).ready(function () {
             name: savedSelection.nama,
             position: savedSelection.jabatan,
             location: isRecording && userLocation && !bypassLocation ? `${userLocation.lat}, ${userLocation.lng}` : "Tanpa Lokasi",
-            clearSpecial: clearSpecial
+            clearSpecial: clearSpecial,
+            keterangan: keterangan,
+            jenisCuti: jenisCuti,
+            dates: dates
         };
 
         // Disable button & show loading
@@ -685,4 +694,108 @@ $(document).ready(function () {
         closeConfirm();
     });
     $('#confirmModal').on('click', function (e) { if (e.target === this) closeConfirm(); });
+
+    // --- KETERANGAN DETAIL MODAL LOGIC ---
+    function showKeteranganDetailModal(sesiName, isRecording, bypassLocation) {
+        // Reset form inputs
+        $('#txtKeterangan').val('');
+        $('#selectJenisCuti').val('Cuti Tahunan');
+
+        // Initialize Flatpickr for multiple dates selection
+        if (window.detailDatePicker) {
+            window.detailDatePicker.destroy();
+        }
+        
+        // Disable weekend days (Saturday and Sunday)
+        const todayLocal = new Date();
+        let defaultDates = [];
+        if (todayLocal.getDay() !== 0 && todayLocal.getDay() !== 6) {
+            defaultDates.push(todayLocal);
+        }
+
+        window.detailDatePicker = flatpickr("#inputTanggalMultiple", {
+            mode: "multiple",
+            dateFormat: "d F Y",
+            locale: "id",
+            disable: [
+                function(date) {
+                    // Disable Saturday (6) and Sunday (0)
+                    return (date.getDay() === 0 || date.getDay() === 6);
+                }
+            ],
+            defaultDate: defaultDates
+        });
+
+        // Determine title
+        const statusLabel = {
+            cuti: "Cuti",
+            izin: "Izin",
+            sakit: "Sakit",
+            dinas_luar: "Dinas Luar",
+            tugas_belajar: "Tugas Belajar",
+            tugas_luar: "Tugas Luar"
+        }[sesiName] || sesiName;
+
+        $('#ketModalTitle').text(`Detail Laporan ${statusLabel}`);
+
+        // Set dynamic placeholder & label for description
+        let descPlaceholder = "Masukkan keterangan tambahan...";
+        if (sesiName === "sakit") {
+            descPlaceholder = "Misal: Demam, Sakit Kepala, dll.";
+        } else if (sesiName === "dinas_luar" || sesiName === "tugas_luar") {
+            descPlaceholder = "Misal: Dinas di Instansi X, Monitoring Y, dll.";
+        } else if (sesiName === "izin") {
+            descPlaceholder = "Misal: Urusan Keluarga, dll.";
+        } else if (sesiName === "tugas_belajar") {
+            descPlaceholder = "Misal: Kuliah di Universitas Z, dll.";
+        }
+        $('#txtKeterangan').attr('placeholder', descPlaceholder);
+
+        // Show/hide Cuti type container
+        if (sesiName === "cuti") {
+            $('#cutiTypeContainer').removeClass('hidden');
+            $('#lblKeterangan').text('Alasan / Keterangan Cuti');
+        } else {
+            $('#cutiTypeContainer').addClass('hidden');
+            $('#lblKeterangan').text('Deskripsi / Keterangan');
+        }
+
+        // Configure click handlers for modal buttons
+        $('#submitKetModal').off('click').on('click', function() {
+            const datesVal = $('#inputTanggalMultiple').val();
+
+            if (!datesVal || datesVal.trim() === "") {
+                showAlert('Pilih Tanggal', 'Silakan pilih minimal satu tanggal.', 'warning');
+                return;
+            }
+
+            const keterangan = $('#txtKeterangan').val().trim();
+            const jenisCuti = sesiName === "cuti" ? $('#selectJenisCuti').val() : "";
+
+            closeKeteranganDetailModal();
+            submitAttendance(sesiName, isRecording, bypassLocation, false, keterangan, jenisCuti, datesVal);
+        });
+
+        $('#cancelKetModal').off('click').on('click', function() {
+            closeKeteranganDetailModal();
+        });
+
+        // Open Modal
+        const modal = $('#keteranganDetailModal');
+        modal.removeClass('hidden');
+        setTimeout(() => {
+            modal.removeClass('opacity-0').find('> div').removeClass('scale-95').addClass('scale-100');
+        }, 10);
+    }
+
+    function closeKeteranganDetailModal() {
+        const modal = $('#keteranganDetailModal');
+        modal.find('> div').addClass('scale-95').removeClass('scale-100');
+        modal.addClass('opacity-0');
+        setTimeout(() => {
+            modal.addClass('hidden');
+        }, 300);
+    }
+
+    $('#keteranganDetailModal').on('click', function (e) { if (e.target === this) closeKeteranganDetailModal(); });
 });

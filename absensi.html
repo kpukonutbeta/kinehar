@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="css/main.css?v=150126-3" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico">
     <style>
         body {
@@ -30,6 +31,51 @@
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom Flatpickr styling to fit premium design */
+        .flatpickr-calendar {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 1.5rem !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+            font-family: 'Public Sans', sans-serif !important;
+        }
+        .dark .flatpickr-calendar {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            color: #ffffff !important;
+        }
+        .dark .flatpickr-day {
+            color: #e2e8f0 !important;
+        }
+        .dark .flatpickr-day:hover, .dark .flatpickr-day.prevMonthDay:hover, .dark .flatpickr-day.nextMonthDay:hover {
+            background: #334155 !important;
+            color: #ffffff !important;
+        }
+        .dark .flatpickr-day.prevMonthDay, .dark .flatpickr-day.nextMonthDay {
+            color: #475569 !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.selected:hover {
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+        .dark .flatpickr-months .flatpickr-month, 
+        .dark .flatpickr-weekdays,
+        .dark .flatpickr-current-month,
+        .dark .flatpickr-monthSelect-months {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+        .dark .flatpickr-current-month input.cur-year {
+            color: #ffffff !important;
+        }
+        .dark .flatpickr-months .flatpickr-prev-month, 
+        .dark .flatpickr-months .flatpickr-next-month {
+            color: #ffffff !important;
+            fill: #ffffff !important;
         }
     </style>
 </head>
@@ -433,7 +479,59 @@
         </div>
     </div>
 
+    <!-- Keterangan Detail Modal -->
+    <div id="keteranganDetailModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="bg-white dark:bg-[#1a2133] w-full max-w-sm mx-4 rounded-[2rem] p-8 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col">
+            <h3 id="ketModalTitle" class="text-xl font-bold text-slate-800 dark:text-white mb-4 text-center">Detail Keterangan</h3>
+            
+            <!-- Dynamic Form Area -->
+            <div class="w-full flex flex-col gap-4 mb-6">
+                <!-- Multiple Date Selector -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pilih Tanggal</label>
+                    <div class="relative">
+                        <input type="text" id="inputTanggalMultiple" class="w-full px-4 py-3 pr-10 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold cursor-pointer" placeholder="Pilih tanggal-tanggal...">
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">calendar_month</span>
+                    </div>
+                </div>
+
+                <!-- Jenis Cuti Selector (Hidden by default) -->
+                <div id="cutiTypeContainer" class="hidden flex flex-col gap-2">
+                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Jenis Cuti</label>
+                    <select id="selectJenisCuti" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold cursor-pointer">
+                        <option value="Cuti Tahunan">Cuti Tahunan</option>
+                        <option value="Cuti Besar">Cuti Besar</option>
+                        <option value="Cuti Melahirkan">Cuti Melahirkan</option>
+                        <option value="Cuti di Luar Tanggungan Negara">Cuti di Luar Tanggungan Negara</option>
+                    </select>
+                </div>
+                
+                <!-- Description Text Area -->
+                <div class="flex flex-col gap-2">
+                    <label id="lblKeterangan" class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Deskripsi / Keterangan</label>
+                    <textarea id="txtKeterangan" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold resize-none" placeholder="Masukkan keterangan..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="flex gap-3 w-full">
+                <button id="cancelKetModal"
+                    class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-bold active:scale-[0.98] transition-all border-0 cursor-pointer">
+                    Batal
+                </button>
+                <button id="submitKetModal"
+                    class="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all border-0 cursor-pointer">
+                    Kirim
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     <script src="js/navigation.js"></script>
     <script src="js/badge_pegawai.js?v=150126-3"></script>
     <script src="js/absensi.js?v=1"></script>
