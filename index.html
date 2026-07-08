@@ -40,27 +40,86 @@
 
     <!-- Main Content -->
     <div class="px-4 max-w-lg md:max-w-2xl lg:max-w-4xl mx-auto">
-        <div
-            class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800 mb-6">
-            <form id="mobileForm">
-                <div
-                    class="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 flex items-center gap-4 border border-gray-100 dark:border-slate-700 mb-6 relative group">
-                    <button id="resetButton" type="button"
-                        class="absolute top-2 right-2 p-1.5 rounded-full text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-red-500 dark:hover:text-red-400 transition-all"
-                        title="Reset Formulir">
-                        <i class="fas fa-rotate-right text-xs"></i>
-                    </button>
-                    <div class="size-12 rounded-lg border-2 border-blue-100 shrink-0 flex items-center justify-center bg-blue-600 text-white overflow-hidden"
-                        id="avatarContainer">
-                        <span class="text-lg font-bold" id="avatarText">--</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <p class="text-sm font-bold text-gray-900 dark:text-white leading-tight" id="textName">---</p>
-                        <p class="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-wider">
-                            NIP. <span id="textNip">---</span></p>
-                    </div>
+        <!-- Employee Info (Always Visible) -->
+        <div id="employeeInfoBanner" class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800 mb-4">
+            <div class="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 flex items-center gap-4 border border-gray-100 dark:border-slate-700 relative group">
+                <div class="size-12 rounded-lg border-2 border-blue-100 shrink-0 flex items-center justify-center bg-blue-600 text-white overflow-hidden" id="avatarContainer">
+                    <span class="text-lg font-bold" id="avatarText">--</span>
                 </div>
+                <div class="flex flex-col">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white leading-tight" id="textName">---</p>
+                    <p class="text-[10px] text-gray-500 font-bold mt-1 uppercase tracking-wider">NIP. <span id="textNip">---</span></p>
+                </div>
+            </div>
+        </div>
 
+        <!-- Switcher Mode Tabs -->
+        <div id="viewModeTabs" class="flex p-1 bg-gray-100 dark:bg-slate-800 rounded-2xl mb-4 shadow-sm">
+            <button id="tab-calendar" class="flex-1 py-3 text-xs font-extrabold flex items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer text-slate-800 dark:text-white bg-white dark:bg-slate-700 shadow-sm border-0">
+                <span class="material-symbols-outlined text-lg">calendar_month</span>
+                Kalender
+            </button>
+            <button id="tab-form" class="flex-1 py-3 text-xs font-extrabold flex items-center justify-center gap-2 rounded-xl transition-all duration-200 cursor-pointer text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-0 bg-transparent">
+                <span class="material-symbols-outlined text-lg">description</span>
+                Formulir
+            </button>
+        </div>
+
+        <!-- Calendar View Container -->
+        <div id="calendarViewContainer" class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800 mb-6 flex flex-col">
+            <!-- Calendar Header -->
+            <div class="flex justify-between items-center mb-6">
+                <button id="prevMonthBtn" class="w-10 h-10 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl flex items-center justify-center border-0 cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300 text-lg">chevron_left</span>
+                </button>
+                <h2 id="currentMonthYear" class="text-base font-black text-slate-800 dark:text-white tracking-wide uppercase">JULI 2026</h2>
+                <button id="nextMonthBtn" class="w-10 h-10 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl flex items-center justify-center border-0 cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300 text-lg">chevron_right</span>
+                </button>
+            </div>
+
+            <!-- Loading overlay for month header -->
+            <div id="calendarLoadingBar" class="hidden flex justify-center items-center gap-2 mb-1" style="min-height:20px;">
+                <div class="cal-dot-loader"><span></span><span></span><span></span></div>
+            </div>
+
+            <!-- Weekday Headers -->
+            <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">SEN</div>
+                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">SEL</div>
+                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">RAB</div>
+                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">KAM</div>
+                <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">JUM</div>
+                <div class="text-[10px] font-bold text-red-500 uppercase tracking-widest">SAB</div>
+                <div class="text-[10px] font-bold text-red-500 uppercase tracking-widest">MIN</div>
+            </div>
+
+            <!-- Calendar Days Grid -->
+            <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Today Floating Bottom Input/Pill Button -->
+            <div id="todayFloatingBar" class="mt-6 flex justify-center">
+                <button id="btnOpenInputModal" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-6 py-4 rounded-2xl shadow-lg hover:shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all border-0 flex items-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    Tambah Kinerja Hari Ini
+                </button>
+            </div>
+        </div>
+
+        <!-- Form View Container -->
+        <div id="formViewContainer" class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-800 mb-6 hidden">
+            <form id="mobileForm">
+                <!-- Reset Button inside header row or absolute -->
+                <div class="flex justify-end mb-2 relative">
+                    <button id="resetButton" type="button"
+                        class="p-1.5 rounded-full text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-red-500 dark:hover:text-red-400 transition-all border-0 bg-transparent cursor-pointer"
+                        title="Reset Formulir">
+                        <i class="fas fa-rotate-right text-sm"></i>
+                    </button>
+                </div>
+                
                 <!-- Tanggal -->
                 <div class="lock text-xs font-semibold text-gray-500 ml-1 mb-4">
                     <label class="block text-[10px] font-bold text-gray-400 uppercase ml-1 mb-2 tracking-wider">Hari / Tanggal</label>
@@ -76,28 +135,6 @@
                     </div>
                 </div>
 
-                <!-- Telah pindah ke profil untuk pilih pegawainya 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Jabatan</label>
-                    <div class="relative" style="font-size: 0.85rem;">
-                        <i class="fas fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="mobilePosition" placeholder="-- Pilih pegawai terlebih dahulu --"
-                            disabled
-                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Unit Kerja</label>
-                    <div class="relative" style="font-size: 0.85rem;">
-                        <i class="fas fa-briefcase absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="mobileDepartment" placeholder="-- Pilih pegawai terlebih dahulu --"
-                            disabled
-                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-                    </div>
-                </div>
-                -->
-
                 <!-- Uraian -->
                 <div class="lock text-xs font-semibold text-gray-500 uppercase ml-1 mb-4">
                     <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Uraian Tugas</label>
@@ -112,32 +149,10 @@
                         class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white dark:placeholder-slate-500"></textarea>
                 </div>
 
-                <!-- Foto Upload -->
-                <div class="form-group" style="display: none;">
-                    <label class="block text-xs font-semibold text-gray-500 uppercase ml-1 mb-1">Dokumentasi
-                        (Foto)</label>
-                    <div class="upload-area" id="mobileUploadArea">
-                        <div class="upload-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                        </div>
-                        <p>Tap untuk upload</p>
-                        <p class="text-muted" style="font-size: 0.9rem;">Maximum 2 photos (2MB each)</p>
-                        <input type="file" id="mobileImageUpload" accept="image/*" multiple style="display: none;">
-                    </div>
-                    <div class="image-preview-container" id="mobileImagePreview">
-
-                    </div>
-                </div>
-
                 <!-- Submit Button -->
                 <div class="flex gap-3">
                     <button type="submit" id="btnSubmit"
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 mt-2">
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 mt-2 border-0 cursor-pointer">
                         <span id="submitTextAlt" class="material-symbols-outlined text-xl">check_circle</span>
                         <span id="submitText">Simpan Kinerja</span>
                         <span id="submitSpinner" class="spinner-border spinner-border-sm" role="status"
@@ -178,6 +193,78 @@
         </button>
     </div>
 
+    <!-- History Kinerja Modal -->
+    <div id="historyModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1a2133] w-full max-w-md mx-4 rounded-[2rem] p-6 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col max-h-[85vh]">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest" id="historyModalDayName">KAMIS</span>
+                    <h3 id="historyModalDate" class="text-lg font-black text-slate-800 dark:text-white tracking-wide">18 Juni 2026</h3>
+                </div>
+                <button id="closeHistoryModal" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full flex items-center justify-center border-0 bg-transparent cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-lg">close</span>
+                </button>
+            </div>
+            
+            <!-- Content Area: Lists events -->
+            <div id="historyModalList" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-3 py-2">
+                <!-- Will be populated dynamically -->
+            </div>
+            
+            <!-- Bottom Button inside modal -->
+            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col">
+                <button id="historyModalAddBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs py-4 rounded-2xl shadow-lg shadow-blue-200 dark:shadow-none active:scale-[0.98] transition-all border-0 flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    Tambah Kinerja Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kinerja Input Modal -->
+    <div id="kinerjaInputModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1a2133] w-full max-w-md mx-4 rounded-[2rem] p-6 shadow-2xl transform scale-95 transition-all duration-300 flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest" id="inputModalDayName">KAMIS</span>
+                    <h3 id="inputModalDate" class="text-lg font-black text-slate-800 dark:text-white tracking-wide">18 Juni 2026</h3>
+                </div>
+                <button id="closeInputModal" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full flex items-center justify-center border-0 bg-transparent cursor-pointer transition-all">
+                    <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-lg">close</span>
+                </button>
+            </div>
+            
+            <!-- Input Form -->
+            <form id="modalKinerjaForm" class="flex flex-col gap-4 overflow-y-auto pr-1">
+                <!-- Uraian -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Uraian Tugas</label>
+                    <textarea id="modalComments" rows="5" placeholder="Berikan uraian di sini ..." required
+                        class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold dark:text-white dark:placeholder-slate-500"></textarea>
+                </div>
+
+                <!-- Output/Hasil -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Output/Hasil</label>
+                    <textarea id="modalFeedback" rows="5" placeholder="Berikan output/hasil di sini ..." required
+                        class="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-semibold dark:text-white dark:placeholder-slate-500"></textarea>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="flex gap-3 mt-2">
+                    <button type="submit" id="btnModalSubmit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer">
+                        <span id="modalSubmitTextAlt" class="material-symbols-outlined text-xl">check_circle</span>
+                        <span id="modalSubmitText">Simpan Kinerja</span>
+                        <span id="modalSubmitSpinner" class="loader-spinner !w-5 !h-5 !border-2" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/navigation.js"></script>
     <script type="text/javascript" src="libs/anypicker.js?v=150126-3"></script>
@@ -190,8 +277,6 @@
             font-family: 'Inter', sans-serif;
         }
 
-        /* Removed glass-card */
-
         .input-focus:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 2px #3b82f6;
@@ -199,6 +284,109 @@
 
         .p-6 {
             padding: 1.1rem;
+        }
+
+        /* Calendar styling overrides */
+        .calendar-day-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .calendar-day-cell.prev-next-month {
+            color: #cbd5e1 !important; /* dimmed gray */
+        }
+        .dark .calendar-day-cell.prev-next-month {
+            color: #475569 !important; /* dark dimmed gray */
+        }
+        /* Weekend (Sabtu & Minggu) - red text */
+        .calendar-day-cell.weekend-day {
+            color: #ef4444;
+        }
+        .calendar-day-cell.weekend-day.prev-next-month {
+            color: #fca5a5 !important;
+        }
+        .dark .calendar-day-cell.weekend-day {
+            color: #f87171;
+        }
+        .dark .calendar-day-cell.weekend-day.prev-next-month {
+            color: #7f1d1d !important;
+        }
+        .calendar-day-cell:hover {
+            background-color: #f1f5f9;
+        }
+        .dark .calendar-day-cell:hover {
+            background-color: #334155;
+        }
+        /* Highlight Today */
+        .calendar-day-cell.today-highlight {
+            border: 2px solid #3b82f6;
+            color: #2563eb;
+        }
+        .dark .calendar-day-cell.today-highlight {
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+        /* Active day selection */
+        .calendar-day-cell.active-selection {
+            background-color: #2563eb !important;
+            color: #ffffff !important;
+        }
+        /* Small dot indicator for days with activities */
+        .calendar-day-cell .dot-indicator {
+            width: 6px;
+            height: 6px;
+            background-color: #10b981; /* emerald-500 */
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: loading-skeleton 1.5s infinite;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+            background-size: 200% 100%;
+            animation: loading-skeleton 1.5s infinite;
+        }
+        @keyframes loading-skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        /* Skeleton cell for loading state */
+        .calendar-skeleton-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 1rem;
+        }
+        /* Dot loader animation */
+        .cal-dot-loader {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .cal-dot-loader span {
+            display: block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3b82f6;
+            animation: cal-dot-bounce 1.2s infinite ease-in-out both;
+        }
+        .cal-dot-loader span:nth-child(1) { animation-delay: -0.32s; }
+        .cal-dot-loader span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes cal-dot-bounce {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
         }
     </style>
 
