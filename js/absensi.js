@@ -715,7 +715,7 @@ $(document).ready(function () {
 
         window.detailDatePicker = flatpickr("#inputTanggalMultiple", {
             mode: "multiple",
-            dateFormat: "d F Y",
+            dateFormat: "j F Y",
             locale: "id",
             disable: [
                 function(date) {
